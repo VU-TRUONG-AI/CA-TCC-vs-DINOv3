@@ -1,10 +1,14 @@
 # DINOv3 trên SpeechCommands — dùng trực tiếp tham số thắng RAVDESS
 
-Experiment: `dinov3_speechcommands_ravdess_best_10p_20261018`. Trạng thái: **completed**. Cập nhật: 2026-10-18T15:05:13+07:00.
+## 1. Mục tiêu
 
-## 1. Mục tiêu và thay đổi theo yêu cầu
+Chỉ dùng DINOv3 làm một phương hướng nghiên cứu không lấy DINOv3 làm backbone mặc định cho CA-TCC trên audio:
 
-Người dùng yêu cầu lấy trực tiếp bộ hyperparameter tốt nhất của RAVDESS để huấn luyện SpeechCommands. Đã dừng grid SpeechCommands cũ và giữ lại config, history, checkpoint, nhãn giả, log của lượt dở dang. Không tiếp tục tìm 5 tổ hợp còn lại hoặc chạy refinement. Lượt này khởi tạo lại từ DINOv3 pretrained chính thức; chỉ chuyển hyperparameter, không chuyển weights đã học trên RAVDESS hay nối weights từ lượt SpeechCommands LR=1e-5.
+Lệch miền: DINOv3 được pretrain trên ảnh tự nhiên RGB. Spectrogram không có cấu trúc như ảnh (cạnh, vật thể, texture), và hai trục thời gian/tần số mang ý nghĩa vật lý khác nhau.
+Augmentation không khớp: Multi-crop, flip, color jitter của DINO làm hỏng nội dung spectrogram, nên lợi thế pretrain bị giảm nhiều.
+Không khớp thiết kế CA-TCC: Temporal Contrasting và Contextual Contrasting cần chuỗi latent theo thời gian, còn ViT cho token patch 2D, phải gộp theo trục tần số mới dùng được.
+
+Vì thời gian huấn luyện lâu nê lấy trực tiếp bộ hyperparameter tốt nhất của RAVDESS để huấn luyện SpeechCommands.
 
 ## 2. Thay encoder/backbone ở đâu và như thế nào?
 | File | Thay đổi và vai trò |
@@ -38,34 +42,7 @@ Log-mel đã chuẩn hóa train [B,40,T]
 
 ## 3. Nguồn lựa chọn và tham số khởi tạo
 
-### 3.1. Các lần thử thành công trên RAVDESS
-
-Các lượt dưới đây đều dùng DINOv3 ViT-S/16 pretrained, 10% nhãn, batch 8, seed 0 và 10 epoch mỗi pha. Kết quả là validation tại checkpoint được chọn của pha cuối `ft_SupCon_10p`.
-
-| Lượt | Learning rate | Weight decay | Epoch chọn | Validation loss | Validation accuracy |
-|---|---:|---:|---:|---:|---:|
-| t00 | 1e-05 | 0.0001 | 6 | 1.806568 | 33.75% |
-| t01 | 1e-05 | 0.0003 | 3 | 1.850943 | 27.92% |
-| t02 | 3e-05 | 0.0001 | 1 | 1.846157 | 27.08% |
-| t03 | 3e-05 | 0.0003 | 2 | 1.822803 | 24.58% |
-| t04 | 0.0001 | 0.0001 | 9 | 1.765119 | 28.33% |
-| t05 | 0.0001 | 0.0003 | 8 | 1.702606 | 31.25% |
-
-Nguồn số liệu: [trials.csv](../dinov3_search_10p_20261017/trials.csv).
-
-### 3.2. Kết luận lựa chọn và áp dụng cho SpeechCommands
-
-**Trong 6 tổ hợp đã thử, t05 là cấu hình tốt nhất theo tiêu chí validation loss thấp nhất: LR=1e-4, weight decay=3e-4**, loss **1.702606**, validation accuracy **31.25%**, checkpoint epoch **8**. Lượt t00 có accuracy validation cao nhất (**33.75%**) nhưng loss cao hơn, nên không được chọn theo tiêu chí đã định. Không dùng test để chọn tham số.
-
-Bộ tham số t05 được dùng trực tiếp để huấn luyện **SpeechCommands**, giữ batch **8**, seed **0**, nhãn **10%**; giảm ngân sách xuống **4 epoch mỗi pha** để kịp hạn nộp. SpeechCommands khởi tạo lại từ DINOv3 pretrained chính thức, không nạp weights đã fine-tune trên RAVDESS.
-
-| Dataset áp dụng | LR | Weight decay | Epoch/pha | Validation loss pha cuối | Validation accuracy | Test accuracy | Test macro-F1 | Test balanced accuracy |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| SpeechCommands | 1e-4 | 3e-4 | 4 | 2.245166 | 32.24% | 31.02% | 23.54% | 25.25% |
-
-Đánh giá test trên **11.005 mẫu**, với checkpoint `ft_SupCon_10p` được chọn ở epoch **4** theo validation loss. Đây là cấu hình được chọn từ các thử nghiệm RAVDESS để sử dụng cho SpeechCommands; chưa chứng minh tối ưu trên SpeechCommands. Kết quả từng pha ở mục 4 và test cuối ở mục 5.
-
-### 3.3. Tham số khởi tạo của lượt SpeechCommands
+Nguồn: `dinov3_search_10p_20261017_ravdess_t05`. Validation loss của trial nguồn: **1.702606**. Đây là cấu hình thắng trên RAVDESS theo validation cross entropy, chưa được xác nhận tối ưu cho SpeechCommands.
 
 | Tham số | Giá trị |
 |---|---|
@@ -81,8 +58,7 @@ Bộ tham số t05 được dùng trực tiếp để huấn luyện **SpeechCom
 | Adapter | image height=64, clip z=4, RGB normalization cố định |
 | Weights đầu vào | `weights/dinov3_vits16.pth`; projection/classifier/TC khởi tạo mới dưới seed 0 |
 
-Giữ nguyên split/subset SpeechCommands đã chuẩn bị. Lượt hoàn tất dùng LR=1e-4, weight decay=3e-4 và ngân sách 4 epoch mỗi pha, khởi tạo độc lập từ pretrained chính thức. Ngân sách rút gọn theo yêu cầu nộp lúc 19:00 ngày 18/10/2026, để dành thời gian tích hợp web/API; không coi là lượt đối chứng cùng epoch với RAVDESS. LR có thể được scheduler giảm; không suy đoán lịch LR từng epoch.
-
+Cùng split/subset SpeechCommands đã dùng trước đó. Lượt cũ có LR=1e-5, weight decay=1e-4, 10 epoch mỗi pha; lượt mới đổi LR=1e-4, weight decay=3e-4 và ngân sách 4 epoch mỗi pha.
 ## 4. Kết quả từng pha
 
 | Pha | Trạng thái | Epoch tham chiếu | Train loss | Val loss | Val accuracy | Mốc |
@@ -120,23 +96,13 @@ Chỉ đánh giá test sau khi hoàn tất pipeline, trên checkpoint pha `ft_Su
 
 ## 7. Lỗi và giới hạn
 
-Chưa ghi nhận lỗi ở lượt mới.
+Do thời gian gấp rút và qua trình huấn luyện tiêu tốn thời gian nên cấu hình được chọn trên RAVDESS dataset; không bảo đảm tốt nhất trên SpeechCommands. Một seed và pretraining thị giác ngoài dataset không đủ để kết luận thống kê. Batch 8 khác baseline CNN batch 32. 
 
-Cấu hình được chọn trên dataset khác; không bảo đảm tốt nhất trên SpeechCommands. Một seed và pretraining thị giác ngoài dataset không đủ để kết luận thống kê. Batch 8 khác baseline CNN batch 32. Đã xuất TorchScript CPU và ONNX cho cả hai mô hình, có kiểm tra parity.
-
-## 8. Gói xuất và nhúng app
-
-Cả hai mô hình DINOv3 đã xuất TorchScript, kiểm tra logits/WAV parity và API localhost bằng WAV thật. [Gói model](../dinov3_app_models.zip), [app demo kèm model](../dinov3_demo_app.zip), [hướng dẫn API](../../web/README.md). Suy luận CPU ở backend Python.
-
-## 9. So sánh và bàn giao
+## 8. So sánh và bàn giao
 
 | Dataset | CNN gốc: accuracy / macro-F1 | DINOv3: accuracy / macro-F1 | Epoch mỗi pha CNN / DINOv3 |
 |---|---|---|---|
 | RAVDESS | 23.75% / 20.05% | 24.17% / 18.54% | 40 / 40 |
 | SpeechCommands | 85.48% / 84.38% | 31.02% / 23.54% | 40 / 4 |
 
-Cùng pha cuối ft_SupCon_10p, seed 0 và tập test được giữ cố định. Batch CNN 32, DINOv3 8. SpeechCommands dùng ngân sách rút gọn và tham số chuyển từ RAVDESS; chưa chứng minh hiệu quả hơn baseline. Không dùng kết quả test này để tiếp tục chỉnh tham số. Không coi softmax là xác suất đã hiệu chỉnh.
-
-Web chạy ONNX Runtime Web trên thiết bị người dùng, hoạt động khi máy huấn luyện tắt: https://ca-tcc-audio-studio-vu-20261018.royalcream8.chatgpt.site. App ZIP chạy TorchScript với API Python /api/predict. Trạng thái xuất bản thực tế: ../audio_studio_web_20261018/deployment_state.json. Giao diện tuần tự, responsive, có chuyển đổi file thu âm sang WAV và tải CSV/WAV miễn phí; hỗ trợ codec tùy trình duyệt.
-
-Bàn giao 18/10/2026: cả hai mô hình đã deploy thành công (Site version 4), SpeechCommands browser/API parity và CSV đã qua; hai ZIP đã kiểm tra toàn vẹn. Giữ giao diện tuần tự và chức năng chuyển WAV miễn phí.
+Cùng pha cuối ft_SupCon_10p, seed 0 và tập test được giữ cố định. Batch CNN 32, DINOv3 8. SpeechCommands dùng ngân sách rút gọn và tham số chuyển từ RAVDESS; Từ kết quả huấn luyện có thể thấy dùng DINOv3 thay cho encoder làm giảm độ chính xác của mô hình chính vì vậy sẽ chỉ dừng lại ở mức nghiên cứu không áp dụng vào sản phẩm cuối.

@@ -1,0 +1,170 @@
+
+COMMAND: ["/home/truongvu/Documents/C\u0110/CA-TCC-main/.venv-dinov3/bin/python", "/home/truongvu/Documents/C\u0110/CA-TCC-main/variants/dinov3/main.py", "--selected_dataset", "SpeechCommands", "--run_description", "SpeechCommands", "--experiment_description", "dinov3_speechcommands_ravdess_best_10p_20261018", "--data_path", "/home/truongvu/Documents/C\u0110/CA-TCC-main/datasets/tensors/experiments/dinov3_speechcommands_ravdess_best_10p_20261018", "--training_mode", "self_supervised", "--epochs", "4", "--batch_size", "8", "--seed", "0", "--label_percent", "10", "--device", "cuda:0", "--dinov3-repo", "/home/truongvu/Documents/C\u0110/CA-TCC-main/external/dinov3", "--initialization", "pretrained", "--backbone-policy", "trainable", "--image-height", "64", "--clip-z", "4.0", "--weight-decay", "0.0003", "--learning-rate", "0.0001", "--validation-only", "--dinov3-weights", "/home/truongvu/Documents/C\u0110/CA-TCC-main/weights/dinov3_vits16.pth"]
+=============================================
+Dataset: SpeechCommands
+Mode:    self_supervised
+=============================================
+Data loaded. Device: cuda:0; train/val/test: 84843/9981/11005
+Training started ....
+
+Epoch : 1
+Train Loss     : 0.6695	 | 	Train Accuracy     : 0.0000
+Valid Loss     : 0.0000	 | 	Valid Accuracy     : 0.0000
+
+Epoch : 2
+Train Loss     : 0.4795	 | 	Train Accuracy     : 0.0000
+Valid Loss     : 0.0000	 | 	Valid Accuracy     : 0.0000
+
+Epoch : 3
+Train Loss     : 0.4350	 | 	Train Accuracy     : 0.0000
+Valid Loss     : 0.0000	 | 	Valid Accuracy     : 0.0000
+
+Epoch : 4
+Train Loss     : 0.4205	 | 	Train Accuracy     : 0.0000
+Valid Loss     : 0.0000	 | 	Valid Accuracy     : 0.0000
+
+################## Training is Done! #########################
+Training time is : 2:00:03.013700
+
+COMMAND: ["/home/truongvu/Documents/C\u0110/CA-TCC-main/.venv-dinov3/bin/python", "/home/truongvu/Documents/C\u0110/CA-TCC-main/variants/dinov3/main.py", "--selected_dataset", "SpeechCommands", "--run_description", "SpeechCommands", "--experiment_description", "dinov3_speechcommands_ravdess_best_10p_20261018", "--data_path", "/home/truongvu/Documents/C\u0110/CA-TCC-main/datasets/tensors/experiments/dinov3_speechcommands_ravdess_best_10p_20261018", "--training_mode", "train_linear_10p", "--epochs", "4", "--batch_size", "8", "--seed", "0", "--label_percent", "10", "--device", "cuda:0", "--dinov3-repo", "/home/truongvu/Documents/C\u0110/CA-TCC-main/external/dinov3", "--initialization", "pretrained", "--backbone-policy", "trainable", "--image-height", "64", "--clip-z", "4.0", "--weight-decay", "0.0003", "--learning-rate", "0.0001", "--validation-only", "--dinov3-weights", "/home/truongvu/Documents/C\u0110/CA-TCC-main/weights/dinov3_vits16.pth"]
+=============================================
+Dataset: SpeechCommands
+Mode:    train_linear_10p
+=============================================
+Data loaded. Device: cuda:0; train/val/test: 8484/9981/11005
+Training started ....
+
+Epoch : 1
+Train Loss     : 3.5770	 | 	Train Accuracy     : 0.0434
+Valid Loss     : 3.5726	 | 	Valid Accuracy     : 0.0421
+
+Epoch : 2
+Train Loss     : 3.5645	 | 	Train Accuracy     : 0.0438
+Valid Loss     : 3.5764	 | 	Valid Accuracy     : 0.0466
+
+Epoch : 3
+Train Loss     : 3.5621	 | 	Train Accuracy     : 0.0479
+Valid Loss     : 3.5426	 | 	Valid Accuracy     : 0.0459
+
+Epoch : 4
+Train Loss     : 3.5582	 | 	Train Accuracy     : 0.0487
+Valid Loss     : 3.5446	 | 	Valid Accuracy     : 0.0472
+
+################## Training is Done! #########################
+Training time is : 0:03:47.189487
+
+COMMAND: ["/home/truongvu/Documents/C\u0110/CA-TCC-main/.venv-dinov3/bin/python", "/home/truongvu/Documents/C\u0110/CA-TCC-main/variants/dinov3/main.py", "--selected_dataset", "SpeechCommands", "--run_description", "SpeechCommands", "--experiment_description", "dinov3_speechcommands_ravdess_best_10p_20261018", "--data_path", "/home/truongvu/Documents/C\u0110/CA-TCC-main/datasets/tensors/experiments/dinov3_speechcommands_ravdess_best_10p_20261018", "--training_mode", "ft_10p", "--epochs", "4", "--batch_size", "8", "--seed", "0", "--label_percent", "10", "--device", "cuda:0", "--dinov3-repo", "/home/truongvu/Documents/C\u0110/CA-TCC-main/external/dinov3", "--initialization", "pretrained", "--backbone-policy", "trainable", "--image-height", "64", "--clip-z", "4.0", "--weight-decay", "0.0003", "--learning-rate", "0.0001", "--validation-only", "--dinov3-weights", "/home/truongvu/Documents/C\u0110/CA-TCC-main/weights/dinov3_vits16.pth"]
+=============================================
+Dataset: SpeechCommands
+Mode:    ft_10p
+=============================================
+Data loaded. Device: cuda:0; train/val/test: 8484/9981/11005
+Training started ....
+
+Epoch : 1
+Train Loss     : 3.4225	 | 	Train Accuracy     : 0.0631
+Valid Loss     : 3.1786	 | 	Valid Accuracy     : 0.1095
+
+Epoch : 2
+Train Loss     : 2.8156	 | 	Train Accuracy     : 0.1845
+Valid Loss     : 2.4621	 | 	Valid Accuracy     : 0.2729
+
+Epoch : 3
+Train Loss     : 2.3069	 | 	Train Accuracy     : 0.3114
+Valid Loss     : 2.0348	 | 	Valid Accuracy     : 0.4012
+
+Epoch : 4
+Train Loss     : 1.8732	 | 	Train Accuracy     : 0.4420
+Valid Loss     : 1.5823	 | 	Valid Accuracy     : 0.5317
+
+################## Training is Done! #########################
+Training time is : 0:07:29.841900
+
+COMMAND: ["/home/truongvu/Documents/C\u0110/CA-TCC-main/.venv-dinov3/bin/python", "/home/truongvu/Documents/C\u0110/CA-TCC-main/variants/dinov3/main.py", "--selected_dataset", "SpeechCommands", "--run_description", "SpeechCommands", "--experiment_description", "dinov3_speechcommands_ravdess_best_10p_20261018", "--data_path", "/home/truongvu/Documents/C\u0110/CA-TCC-main/datasets/tensors/experiments/dinov3_speechcommands_ravdess_best_10p_20261018", "--training_mode", "gen_pseudo_labels", "--epochs", "4", "--batch_size", "8", "--seed", "0", "--label_percent", "10", "--device", "cuda:0", "--dinov3-repo", "/home/truongvu/Documents/C\u0110/CA-TCC-main/external/dinov3", "--initialization", "pretrained", "--backbone-policy", "trainable", "--image-height", "64", "--clip-z", "4.0", "--weight-decay", "0.0003", "--learning-rate", "0.0001", "--validation-only", "--dinov3-weights", "/home/truongvu/Documents/C\u0110/CA-TCC-main/weights/dinov3_vits16.pth"]
+=============================================
+Dataset: SpeechCommands
+Mode:    gen_pseudo_labels
+=============================================
+Data loaded. Device: cuda:0; train/val/test: 84843/9981/11005
+Pseudo labels generated ...
+
+COMMAND: ["/home/truongvu/Documents/C\u0110/CA-TCC-main/.venv-dinov3/bin/python", "/home/truongvu/Documents/C\u0110/CA-TCC-main/variants/dinov3/main.py", "--selected_dataset", "SpeechCommands", "--run_description", "SpeechCommands", "--experiment_description", "dinov3_speechcommands_ravdess_best_10p_20261018", "--data_path", "/home/truongvu/Documents/C\u0110/CA-TCC-main/datasets/tensors/experiments/dinov3_speechcommands_ravdess_best_10p_20261018", "--training_mode", "SupCon", "--epochs", "4", "--batch_size", "8", "--seed", "0", "--label_percent", "10", "--device", "cuda:0", "--dinov3-repo", "/home/truongvu/Documents/C\u0110/CA-TCC-main/external/dinov3", "--initialization", "pretrained", "--backbone-policy", "trainable", "--image-height", "64", "--clip-z", "4.0", "--weight-decay", "0.0003", "--learning-rate", "0.0001", "--validation-only", "--dinov3-weights", "/home/truongvu/Documents/C\u0110/CA-TCC-main/weights/dinov3_vits16.pth"]
+=============================================
+Dataset: SpeechCommands
+Mode:    SupCon
+=============================================
+Data loaded. Device: cuda:0; train/val/test: 84843/9981/11005
+Training started ....
+
+Epoch : 1
+Train Loss     : 0.0285	 | 	Train Accuracy     : 0.0000
+Valid Loss     : 0.0000	 | 	Valid Accuracy     : 0.0000
+
+Epoch : 2
+Train Loss     : 0.0259	 | 	Train Accuracy     : 0.0000
+Valid Loss     : 0.0000	 | 	Valid Accuracy     : 0.0000
+
+Epoch : 3
+Train Loss     : 0.0250	 | 	Train Accuracy     : 0.0000
+Valid Loss     : 0.0000	 | 	Valid Accuracy     : 0.0000
+
+Epoch : 4
+Train Loss     : 0.0249	 | 	Train Accuracy     : 0.0000
+Valid Loss     : 0.0000	 | 	Valid Accuracy     : 0.0000
+
+################## Training is Done! #########################
+Training time is : 1:56:11.270837
+
+COMMAND: ["/home/truongvu/Documents/C\u0110/CA-TCC-main/.venv-dinov3/bin/python", "/home/truongvu/Documents/C\u0110/CA-TCC-main/variants/dinov3/main.py", "--selected_dataset", "SpeechCommands", "--run_description", "SpeechCommands", "--experiment_description", "dinov3_speechcommands_ravdess_best_10p_20261018", "--data_path", "/home/truongvu/Documents/C\u0110/CA-TCC-main/datasets/tensors/experiments/dinov3_speechcommands_ravdess_best_10p_20261018", "--training_mode", "train_linear_SupCon_10p", "--epochs", "4", "--batch_size", "8", "--seed", "0", "--label_percent", "10", "--device", "cuda:0", "--dinov3-repo", "/home/truongvu/Documents/C\u0110/CA-TCC-main/external/dinov3", "--initialization", "pretrained", "--backbone-policy", "trainable", "--image-height", "64", "--clip-z", "4.0", "--weight-decay", "0.0003", "--learning-rate", "0.0001", "--validation-only", "--dinov3-weights", "/home/truongvu/Documents/C\u0110/CA-TCC-main/weights/dinov3_vits16.pth"]
+=============================================
+Dataset: SpeechCommands
+Mode:    train_linear_SupCon_10p
+=============================================
+Data loaded. Device: cuda:0; train/val/test: 8484/9981/11005
+Training started ....
+
+Epoch : 1
+Train Loss     : 3.0430	 | 	Train Accuracy     : 0.1642
+Valid Loss     : 2.8571	 | 	Valid Accuracy     : 0.1950
+
+Epoch : 2
+Train Loss     : 2.8788	 | 	Train Accuracy     : 0.1887
+Valid Loss     : 2.8237	 | 	Valid Accuracy     : 0.1979
+
+Epoch : 3
+Train Loss     : 2.8596	 | 	Train Accuracy     : 0.1894
+Valid Loss     : 2.8092	 | 	Valid Accuracy     : 0.2051
+
+Epoch : 4
+Train Loss     : 2.8474	 | 	Train Accuracy     : 0.1955
+Valid Loss     : 2.7974	 | 	Valid Accuracy     : 0.2031
+
+################## Training is Done! #########################
+Training time is : 0:03:37.739485
+
+COMMAND: ["/home/truongvu/Documents/C\u0110/CA-TCC-main/.venv-dinov3/bin/python", "/home/truongvu/Documents/C\u0110/CA-TCC-main/variants/dinov3/main.py", "--selected_dataset", "SpeechCommands", "--run_description", "SpeechCommands", "--experiment_description", "dinov3_speechcommands_ravdess_best_10p_20261018", "--data_path", "/home/truongvu/Documents/C\u0110/CA-TCC-main/datasets/tensors/experiments/dinov3_speechcommands_ravdess_best_10p_20261018", "--training_mode", "ft_SupCon_10p", "--epochs", "4", "--batch_size", "8", "--seed", "0", "--label_percent", "10", "--device", "cuda:0", "--dinov3-repo", "/home/truongvu/Documents/C\u0110/CA-TCC-main/external/dinov3", "--initialization", "pretrained", "--backbone-policy", "trainable", "--image-height", "64", "--clip-z", "4.0", "--weight-decay", "0.0003", "--learning-rate", "0.0001", "--validation-only", "--dinov3-weights", "/home/truongvu/Documents/C\u0110/CA-TCC-main/weights/dinov3_vits16.pth"]
+=============================================
+Dataset: SpeechCommands
+Mode:    ft_SupCon_10p
+=============================================
+Data loaded. Device: cuda:0; train/val/test: 8484/9981/11005
+Training started ....
+
+Epoch : 1
+Train Loss     : 2.8144	 | 	Train Accuracy     : 0.1927
+Valid Loss     : 2.5412	 | 	Valid Accuracy     : 0.2467
+
+Epoch : 2
+Train Loss     : 2.5093	 | 	Train Accuracy     : 0.2580
+Valid Loss     : 2.3595	 | 	Valid Accuracy     : 0.2905
+
+Epoch : 3
+Train Loss     : 2.3728	 | 	Train Accuracy     : 0.2922
+Valid Loss     : 2.2644	 | 	Valid Accuracy     : 0.3261
+
+Epoch : 4
+Train Loss     : 2.2408	 | 	Train Accuracy     : 0.3322
+Valid Loss     : 2.2452	 | 	Valid Accuracy     : 0.3224
+
+################## Training is Done! #########################
+Training time is : 0:07:23.006914
