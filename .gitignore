@@ -1,0 +1,90 @@
+# Python / virtualenvs
+.venv/
+.venv-dinov3/
+.venv-kaggle/
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# local editor / metadata
+.vscode/
+.agents/
+.aws/
+.codex/
+.openai/
+**/.git/
+**/.openai/
+
+# environment / secrets
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+
+# project data and large/generated artifacts
+weights/
+external/dinov3/
+experiments_logs/
+runtime_data/
+runtime_jobs/
+artifacts/
+!artifacts/dinov3_search_10p_20261017/
+!artifacts/dinov3_search_10p_20261017/README.md
+!artifacts/dinov3_search_10p_20261017/trials.csv
+!artifacts/dinov3_speechcommands_ravdess_best_10p_20261018/
+!artifacts/dinov3_speechcommands_ravdess_best_10p_20261018/README.md
+!artifacts/full_audio_10p_seed0_20261017/
+!artifacts/full_audio_10p_seed0_20261017/metrics_summary.csv
+!artifacts/full_audio_10p_seed0_20261017/metrics_summary.json
+
+# dataset exclusions
+datasets/raw/
+datasets/processed/
+datasets/tensors/
+datasets/docs/
+datasets/figures/
+datasets/reports/
+
+docs/reference/figures/
+docs/reorganization_20261017/
+
+# documents / personal files
+documents/
+variants/__init__.py
+
+# deployment bundle exclusions
+sites/ca-tcc-audio-studio/dist/models/**/*.bin
+sites/ca-tcc-audio-studio/dist/models/**/weights-*.bin
+
+# model weights / checkpoints / archives
+*.pt
+*.pth
+*.onnx
+*.bin
+**/weights-*.bin
+*.zip
+*.tar
+*.tar.gz
+*.gz
+
+# package wheels / caches
+.wheelhouse/
+
+# website deployment exclusions
+sites/ca-tcc-audio-studio/.git/
+sites/ca-tcc-audio-studio/.openai/
+
+# keep repo-safe metadata files if present
+!sites/ca-tcc-audio-studio/README.md
+!sites/ca-tcc-audio-studio/dist/
+!sites/ca-tcc-audio-studio/dist/**
+
+# do not track personal notes or non-project docs
+*.log

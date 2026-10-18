@@ -1,0 +1,8 @@
+experiment,dataset,learning_rate,weight_decay,batch_size,epochs,seed,state,exit_code,validation_loss,validation_accuracy,selected_epoch,error
+dinov3_search_10p_20261017_ravdess_t00,RAVDESS,1e-05,0.0001,8,10,0,completed,0,1.8065682252248128,0.3375,6,
+dinov3_search_10p_20261017_ravdess_t01,RAVDESS,1e-05,0.0003,8,10,0,completed,0,1.850942814350128,0.2791666666666667,3,
+dinov3_search_10p_20261017_ravdess_t02,RAVDESS,3e-05,0.0001,8,10,0,completed,0,1.8461573004722596,0.2708333333333333,1,
+dinov3_search_10p_20261017_ravdess_t03,RAVDESS,3e-05,0.0003,8,10,0,completed,0,1.8228031396865845,0.24583333333333332,2,
+dinov3_search_10p_20261017_ravdess_t04,RAVDESS,0.0001,0.0001,8,10,0,completed,0,1.7651185850302378,0.2833333333333333,9,
+dinov3_search_10p_20261017_ravdess_t05,RAVDESS,0.0001,0.0003,8,10,0,completed,0,1.702606091896693,0.3125,8,
+dinov3_search_10p_20261017_speechcommands_t00,SpeechCommands,1e-05,0.0001,8,10,0,running,,,,,

@@ -1,0 +1,175 @@
+--- main.py
++++ variants/dinov3/main.py
+@@ -1,3 +1,9 @@
++"""Separate CA-TCC entry point using DINOv3; the baseline main.py is unchanged."""
++from pathlib import Path
++import sys
++sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
++from variants.dinov3.common import (ROOT, require_baseline_complete, validate_experiment,
++                                    experiment_data_root, sha256, snapshot_sources)
+ import argparse
+ import os
+ import sys
+@@ -12,10 +18,10 @@
+ 
+ from dataloader.dataloader import data_generator
+ from models.TC import TC
+-from models.model import base_Model
+-from trainer.trainer import Trainer, model_evaluate, gen_pseudo_labels
+-from utils import _calc_metrics, copy_Files
+-from utils import _logger, set_requires_grad
++from variants.dinov3.model import DinoAudioModel
++from variants.dinov3.trainer import Trainer, model_evaluate, gen_pseudo_labels
++from utils import _calc_metrics
++from utils import _logger
+ 
+ start_time = datetime.now()
+ 
+@@ -23,7 +29,7 @@
+ 
+ ######################## Model parameters ########################
+ home_dir = os.getcwd()
+-parser.add_argument('--experiment_description',     default='audio_experiments',  type=str,   help='Experiment Description')
++parser.add_argument('--experiment_description',     required=True,  type=str,   help='Experiment Description')
+ parser.add_argument('--run_description',            default='test1',            type=str,   help='Experiment Description')
+ parser.add_argument('--seed',                       default=0,                  type=int,   help='seed value')
+ parser.add_argument('--training_mode',              default='self_supervised',  type=str,
+@@ -40,7 +46,36 @@
+ parser.add_argument('--label_percent', type=int, default=1, choices=[1, 5, 10, 50, 75])
+ parser.add_argument('--threads', type=int, default=4)
+ parser.add_argument('--resume', action='store_true')
++parser.add_argument('--dinov3-repo', required=True, help='Local official DINOv3 checkout; never cloned automatically.')
++parser.add_argument('--dinov3-weights', default=None, help='Local official ViT-S/16 checkpoint, required for pretrained initialization.')
++parser.add_argument('--initialization', choices=['pretrained', 'random'], default='pretrained')
++parser.add_argument('--backbone-policy', choices=['trainable', 'frozen'], default='trainable')
++parser.add_argument('--image-height', type=int, default=64)
++parser.add_argument('--clip-z', type=float, default=4.0)
+ args = parser.parse_args()
++require_baseline_complete()
++validate_experiment(args.experiment_description)
++if args.run_description != args.selected_dataset:
++    parser.error('--run_description must match --selected_dataset for isolated reports.')
++if Path(args.logs_save_dir).resolve() != ROOT / 'experiments_logs':
++    parser.error('Keep --logs_save_dir=experiments_logs so each dinov3_ experiment has a separate run tree.')
++if Path(args.data_path).resolve() != experiment_data_root(args.experiment_description):
++    parser.error('Use this experiment private data root; prepare it with variants/dinov3/pipeline.py.')
++valid_modes = {'self_supervised', 'SupCon', 'gen_pseudo_labels', 'supervised',
++               f'train_linear_{args.label_percent}p', f'ft_{args.label_percent}p',
++               f'train_linear_SupCon_{args.label_percent}p', f'ft_SupCon_{args.label_percent}p'}
++if args.training_mode not in valid_modes:
++    parser.error('Mode does not match the selected label budget.')
++repo = Path(args.dinov3_repo).expanduser().resolve()
++if not (repo / 'hubconf.py').is_file():
++    parser.error('--dinov3-repo must contain the official hubconf.py.')
++if args.initialization == 'pretrained' and (not args.dinov3_weights or not Path(args.dinov3_weights).expanduser().is_file()):
++    parser.error('Pretrained initialization requires a local --dinov3-weights file.')
++if args.initialization == 'random' and args.dinov3_weights:
++    parser.error('Random initialization must not receive pretrained weights.')
++provenance = {'dinov3_weights_sha256': sha256(Path(args.dinov3_weights).expanduser()) if args.dinov3_weights else None,
++              'dinov3_repo_source_sha256': {str(p.relative_to(repo)): sha256(p) for p in sorted((repo/'dinov3').rglob('*.py'))}}
++
+ if args.device == 'auto':
+     args.device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+ if args.device.startswith('cuda') and not torch.cuda.is_available():
+@@ -85,9 +120,13 @@
+     previous = json.load(open(config_path))
+     if not args.resume:
+         parser.error(f'Run already exists: {experiment_log_dir}. Use a new experiment or --resume.')
+-    for key in ('selected_dataset', 'data_path', 'training_mode', 'seed', 'label_percent', 'epochs', 'batch_size'):
++    for key in ('selected_dataset', 'data_path', 'training_mode', 'seed', 'label_percent', 'epochs', 'batch_size',
++                'dinov3_repo', 'dinov3_weights', 'initialization', 'backbone_policy', 'image_height', 'clip_z'):
+         if previous.get(key) != vars(args).get(key):
+             parser.error(f'Cannot resume with changed {key}.')
++    for key, value in provenance.items():
++        if previous.get(key) != value:
++            parser.error(f'Cannot resume with changed source/weights: {key}.')
+ 
+ # loop through domains
+ counter = 0
+@@ -112,7 +151,7 @@
+     return value
+ 
+ manifest_path = os.path.join(data_path, 'manifest.json')
+-metadata = {**vars(args), 'torch_version': str(torch.__version__),
++metadata = {**vars(args), **provenance, 'backbone': 'dinov3_vits16', 'torch_version': str(torch.__version__),
+             'resolved_config': config_values(configs),
+             'manifest_sha256': hashlib.sha256(open(manifest_path, 'rb').read()).hexdigest() if os.path.exists(manifest_path) else None,
+             'num_epoch': configs.num_epoch, 'batch_size': configs.batch_size}
+@@ -121,7 +160,9 @@
+ 
+ 
+ # Load Model
+-model = base_Model(configs).to(device)
++model = DinoAudioModel(configs, repo=args.dinov3_repo, weights=args.dinov3_weights,
++                       initialization=args.initialization, image_height=args.image_height,
++                       clip_z=args.clip_z, backbone_policy=args.backbone_policy).to(device)
+ temporal_contr_model = TC(configs, device).to(device)
+ 
+ if "fine_tune" in training_mode or "ft_" in training_mode:
+@@ -189,21 +230,8 @@
+ 
+     model_dict.update(pretrained_dict)
+     model.load_state_dict(model_dict)
+-    set_requires_grad(model, pretrained_dict, requires_grad=False)  # Freeze everything except last layer.
+-
+-if training_mode == "random_init":
+-    model_dict = model.state_dict()
+-
+-    # delete all the parameters except for logits
+-    del_list = ['logits']
+-    pretrained_dict_copy = model_dict.copy()
+-    for i in pretrained_dict_copy.keys():
+-        for j in del_list:
+-            if j in i:
+-                del model_dict[i]
+-    set_requires_grad(model, model_dict, requires_grad=False)  # Freeze everything except last layer.
+-
+-    
++    # configure_stage below freezes all encoder parameters for linear evaluation.
++
+ if training_mode == "SupCon":
+     load_from = os.path.join(       
+         os.path.join(logs_save_dir, experiment_description, run_description, f"ft_{args.label_percent}p_seed_{SEED}", "saved_models"))      
+@@ -215,14 +243,16 @@
+     model.load_state_dict(pretrained_dict)     
+     
+     
+-model_optimizer = torch.optim.Adam(model.parameters(), lr=configs.lr, betas=(configs.beta1, configs.beta2),
++model.configure_stage(training_mode)
++
++model_optimizer = torch.optim.Adam((p for p in model.parameters() if p.requires_grad), lr=configs.lr, betas=(configs.beta1, configs.beta2),
+                                    weight_decay=3e-4)
+ 
+ temporal_contr_optimizer = torch.optim.Adam(temporal_contr_model.parameters(), lr=configs.lr,
+                                             betas=(configs.beta1, configs.beta2), weight_decay=3e-4)
+ 
+ if training_mode == "self_supervised" or training_mode == "SupCon":  # to do it only once
+-    copy_Files(os.path.join(logs_save_dir, experiment_description, run_description), data_type)
++    snapshot_sources(experiment_log_dir)
+ 
+ # Trainer
+ Trainer(model, temporal_contr_model, model_optimizer, temporal_contr_optimizer, train_dl, valid_dl, test_dl, device,
+--- trainer/trainer.py
++++ variants/dinov3/trainer.py
+@@ -1,3 +1,8 @@
++"""Isolated baseline trainer copy; only the linear-probe freeze hook is changed.
++
++Source: trainer/trainer.py at variant creation. Losses, optimizers, checkpoint and
++validation selection behavior are retained. This module has not been executed.
++"""
+ import os
+ import json
+ import random
+@@ -109,10 +114,8 @@
+     sample_count = 0
+     model.train()
+     if 'train_linear' in training_mode or 'tl' in training_mode or training_mode == 'random_init':
+-        # Frozen encoder includes BatchNorm running statistics and dropout.
+-        model.conv_block1.eval()
+-        model.conv_block2.eval()
+-        model.conv_block3.eval()
++        # DINOv3 freezes its complete encoder through configure_stage/train.
++        model.encoder.eval()
+     temporal_contr_model.train()
+ 
+     for batch_idx, (data, labels, aug1, aug2) in enumerate(train_loader):

@@ -1,0 +1,40 @@
+{
+  "status": "implementation_only_not_executed",
+  "new_code_imported": false,
+  "new_code_compiled": false,
+  "tests_run": false,
+  "new_training_started": false,
+  "weights_downloaded": false,
+  "environment_changed": false,
+  "baseline_files_retained_sha256": {
+    "main.py": "3c30e1d7eb6fa7fb80da77e6a42d792753f1d055fac15c0fac8ea96bcba3ec92",
+    "models/model.py": "f3b9612adfedafadcf2c565ffb3d2690e3cdd05edfdeb7b93683281e1264de61",
+    "models/TC.py": "b2f23350d1a60d5708f13c58659ad6aa4c1401a060dd64bff8f5314bc8f469ac",
+    "models/loss.py": "d3aec341ba53eb027b2db891dd27a9d0e92bbd0b7926b2dfdfb54e5edac84d08",
+    "trainer/trainer.py": "897bd02d74a26bdb9b4b5a4fde47621925a16f0f500cc3912e2324ea2fe79133",
+    "dataloader/dataloader.py": "5f3a5966c1f997bde1b23d59ce59fd2db4d2236ac6c2593981b12795f58f30c1",
+    "dataloader/augmentations.py": "b0f04d6b4dea05918c14d918279854ca53ae58e7e3e8be3fed397e7f04506630",
+    "config_files/SpeechCommands_Configs.py": "b44475144f2416d5f5314e3ca9864b92f0ec272d62d8613304c69b6638718f55",
+    "config_files/RAVDESS_Configs.py": "109bb321f975e2ab951e41b0805a48bd8fa2fc999fa1491beb8321772c2ec1ee",
+    "scripts/run_audio_pipeline.py": "d156574a865515e1ad8ccf793515f72710cf2f6ba26f278da3de0e5c4e6ad8e1",
+    "scripts/run_full_audio.py": "1dba7590dc0275daec8468a294fd7ab3046589118da821085496dc5878d3caaf",
+    "scripts/export_audio_model.py": "ebf77cc438e6da40a95dd6b5d629398e941a0e66f4d0168379ade353ba488cde",
+    "scripts/report_full_audio.py": "a9b4aeff0473be6a0a86fe4f7a613670bbf423fe6f0d4aa73baeca5e6fb0a26c"
+  },
+  "new_files": [
+    "variants/dinov3/CHANGES.patch",
+    "variants/dinov3/README.md",
+    "variants/dinov3/__init__.py",
+    "variants/dinov3/common.py",
+    "variants/dinov3/compare.py",
+    "variants/dinov3/main.py",
+    "variants/dinov3/model.py",
+    "variants/dinov3/pipeline.py",
+    "variants/dinov3/trainer.py",
+    "variants/__init__.py",
+    "variants/dinov3/implementation_manifest.json"
+  ],
+  "existing_file_updated": [
+    "README.md (documentation link only)"
+  ]
+}

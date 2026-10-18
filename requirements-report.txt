@@ -1,0 +1,2 @@
+# Optional: generate report figures from completed training artifacts.
+matplotlib>=3.9,<4

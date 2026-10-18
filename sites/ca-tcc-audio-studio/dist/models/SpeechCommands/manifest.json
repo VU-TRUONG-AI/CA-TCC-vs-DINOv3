@@ -1,0 +1,86 @@
+{
+  "dataset": "SpeechCommands",
+  "backbone": "dinov3_vits16",
+  "classes": [
+    "backward",
+    "bed",
+    "bird",
+    "cat",
+    "dog",
+    "down",
+    "eight",
+    "five",
+    "follow",
+    "forward",
+    "four",
+    "go",
+    "happy",
+    "house",
+    "learn",
+    "left",
+    "marvin",
+    "nine",
+    "no",
+    "off",
+    "on",
+    "one",
+    "right",
+    "seven",
+    "sheila",
+    "six",
+    "stop",
+    "three",
+    "tree",
+    "two",
+    "up",
+    "visual",
+    "wow",
+    "yes",
+    "zero"
+  ],
+  "seconds": 1.0,
+  "sample_rate": 16000,
+  "input_name": "waveform",
+  "output_name": "logits",
+  "input_samples": 16000,
+  "model_sha256": "b6150850650b43fe1fecab6708479112258f5f7dee12cabaf901282ff2d904ed",
+  "checkpoint_sha256": "0a2cb41c44372b9d5bab158a0fa8069509f921df5b6d0314c258b313dcc36e2a",
+  "chunks": [
+    {
+      "file": "weights-00.bin",
+      "bytes": 16777216,
+      "sha256": "aff6f0288443d71150af25e349943404842eba520d238506609a8beeb1c6d9c8"
+    },
+    {
+      "file": "weights-01.bin",
+      "bytes": 16777216,
+      "sha256": "8367830790530953185c5aade14c863bfdf90c8be68d6a4cc740d494f6138dbf"
+    },
+    {
+      "file": "weights-02.bin",
+      "bytes": 16777216,
+      "sha256": "677e62fbb33c2f033b27ed49a0d33fff0588dde6a150548221f31165afa63036"
+    },
+    {
+      "file": "weights-03.bin",
+      "bytes": 16777216,
+      "sha256": "737ef8f29bc2eac351317ab55406b8d0a33ea1a85eb090673bbe71bbcd045e5f"
+    },
+    {
+      "file": "weights-04.bin",
+      "bytes": 16777216,
+      "sha256": "7caf604c4286b7497fc6da5d08771cf0e7df9d03453a49e15819669e5c47c3b1"
+    },
+    {
+      "file": "weights-05.bin",
+      "bytes": 4125035,
+      "sha256": "20348ebb8ba910a5f0ebd998c7563362d3aa1b1d5f55d6db0cfbbe926752fd5a"
+    }
+  ],
+  "ready": true,
+  "embedded_frontend": "mono float32 16kHz waveform; padding/cropping is performed by caller; log-mel/normalization/adapter inside ONNX",
+  "onnx_opset": 17,
+  "training_epochs": 4,
+  "learning_rate": 0.0001,
+  "weight_decay": 0.0003
+}

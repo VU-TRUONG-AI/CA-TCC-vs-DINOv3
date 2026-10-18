@@ -1,0 +1,59 @@
+{
+  "dataset": "RAVDESS",
+  "backbone": "dinov3_vits16",
+  "classes": [
+    "neutral",
+    "calm",
+    "happy",
+    "sad",
+    "angry",
+    "fearful",
+    "disgust",
+    "surprised"
+  ],
+  "seconds": 6.0,
+  "sample_rate": 16000,
+  "input_name": "waveform",
+  "output_name": "logits",
+  "input_samples": 96000,
+  "model_sha256": "9300c2932f9632618007eca1ac291e201ac399cf2c676f0f104b1730008f80e2",
+  "checkpoint_sha256": "4116afa164929ffd3d6ffd37cac492068dec3ae54ba73daf75acb6b141a2dc85",
+  "chunks": [
+    {
+      "file": "weights-00.bin",
+      "bytes": 16777216,
+      "sha256": "9648c2c56ee9e2c50e8937385672e1aa0b356ad5f023b5f90c8cf275512665eb"
+    },
+    {
+      "file": "weights-01.bin",
+      "bytes": 16777216,
+      "sha256": "8b2282c471aa7d327aee2b68b293c11f55f317f19c30b0bb4872789628354ad1"
+    },
+    {
+      "file": "weights-02.bin",
+      "bytes": 16777216,
+      "sha256": "3043a5c389039f0c1eb8d9baacde2fb5253367d2b22aae9c8a39fc2459602cb0"
+    },
+    {
+      "file": "weights-03.bin",
+      "bytes": 16777216,
+      "sha256": "bea95c6292e0901c1bfa583397d00a363fa7336f677f9e534080d226e477110c"
+    },
+    {
+      "file": "weights-04.bin",
+      "bytes": 16777216,
+      "sha256": "07a8f832c6a6ad319a227c32e56648f614db22648ef8090daa0556bf2485d41f"
+    },
+    {
+      "file": "weights-05.bin",
+      "bytes": 4171770,
+      "sha256": "74f838724bc0328bb5c17617a27a1887acd18f8be2849b99ddfaf8507e448f80"
+    }
+  ],
+  "ready": true,
+  "embedded_frontend": "mono float32 16kHz waveform; padding/cropping is performed by caller; log-mel/normalization/adapter inside ONNX",
+  "onnx_opset": 17,
+  "training_epochs": 40,
+  "learning_rate": 0.0001,
+  "weight_decay": 0.0003
+}

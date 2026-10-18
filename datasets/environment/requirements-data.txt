@@ -1,0 +1,5 @@
+numpy>=1.26,<3
+scipy>=1.11,<2
+reportlab>=4,<5
+pillow>=10,<13
+# Optional: torch==2.5.1 for packaging tensors only.
