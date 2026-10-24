@@ -35,6 +35,8 @@ experiments_logs/
 runtime_data/
 runtime_jobs/
 artifacts/
+!artifacts/audio_studio_web_20261018/
+!artifacts/audio_studio_web_20261018/*.png
 !artifacts/dinov3_search_10p_20261017/
 !artifacts/dinov3_search_10p_20261017/README.md
 !artifacts/dinov3_search_10p_20261017/trials.csv
@@ -48,20 +50,9 @@ artifacts/
 datasets/raw/
 datasets/processed/
 datasets/tensors/
-datasets/docs/
-datasets/figures/
-datasets/reports/
-
-docs/reference/figures/
-docs/reorganization_20261017/
 
 # documents / personal files
 documents/
-variants/__init__.py
-
-# deployment bundle exclusions
-sites/ca-tcc-audio-studio/dist/models/**/*.bin
-sites/ca-tcc-audio-studio/dist/models/**/weights-*.bin
 
 # model weights / checkpoints / archives
 *.pt
