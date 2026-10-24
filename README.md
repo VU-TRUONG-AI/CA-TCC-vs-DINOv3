@@ -18,6 +18,54 @@ Source excerpts below come from the archived **18 October experiment snapshot**,
 
 ![Audio-to-DINOv3 architecture](docs/figures/dinov3_original/architecture.png)
 
+### How the DINOv3 integration was built: implementation map
+
+DINOv3 itself is **not reimplemented from scratch** here. The project instantiates Meta's official pretrained ViT-S/16 and builds an audio adapter, a temporal projection, a classifier, and a separate CA-TCC training entry point around it. The following paths are relative to the repository root, `CA-TCC-main/`.
+
+```text
+CA-TCC-main/
+├── datasets/pipeline/audio_features.py  # WAV → log-mel frontend
+├── models/model.py                     # Original CNN encoder retained
+├── models/TC.py                        # Shared temporal/contextual module
+├── models/loss.py                      # Original NT-Xent / SupCon objectives
+├── variants/dinov3/
+│   ├── model.py                        # DINOv3 audio encoder + classifier
+│   ├── main.py                         # Model creation, stages and optimizers
+│   ├── trainer.py                      # Active trainer entry point
+│   └── pipeline.py                     # Full experiment orchestration
+├── external/dinov3/                    # Local official source; not vendored
+└── weights/dinov3_vits16.pth            # Local pretrained weights; not Git source
+```
+
+| Integration step | What was implemented | Exact file/function reference |
+|---|---|---|
+| 1. Prepare audio input | Extract log-mel features; the adapter later consumes normalized `[B,40,T]` tensors. | [datasets/pipeline/audio_features.py → extract_features](datasets/pipeline/audio_features.py#L57-L69) |
+| 2. Retain the CNN baseline | Keep the original three convolution blocks and classifier in their own implementation. | [models/model.py → base_Model](models/model.py#L4-L41) |
+| 3. Load the official DINOv3 | Import the local official factory, create ViT-S/16 and strictly load pretrained weights. | [variants/dinov3/model.py → DinoSequenceEncoder.__init__](variants/dinov3/model.py#L30-L42) |
+| 4. Build the audio-to-image adapter | Clip, rescale, resize, repeat channels and apply fixed RGB normalization. | [variants/dinov3/model.py → DinoSequenceEncoder.forward](variants/dinov3/model.py#L53-L60) |
+| 5. Recover a temporal feature sequence | Select patch outputs, average frequency rows and project 384 channels to 128. | [variants/dinov3/model.py → token pooling/projection](variants/dinov3/model.py#L61-L68) |
+| 6. Build the classification wrapper | Attach the sequence encoder and a linear classifier; return logits and features. | [variants/dinov3/model.py → DinoAudioModel](variants/dinov3/model.py#L71-L107) |
+| 7. Instantiate the audio model for training | Construct DinoAudioModel and the existing TC module on the selected device. | [variants/dinov3/main.py → model construction](variants/dinov3/main.py#L180-L184) |
+| 8. Apply the stage-specific freezing policy | Configure which encoder components participate in gradient computation. | [variants/dinov3/model.py → configure_stage / train](variants/dinov3/model.py#L83-L103) |
+| 9. Run the CA-TCC stages | Orchestrate self-supervised, classification, pseudo-label and SupCon stages. | [variants/dinov3/pipeline.py → main stage loop](variants/dinov3/pipeline.py#L105-L137) |
+
+**How to read the citations:** source links include GitHub line anchors such as `#L53-L68`. They point into files in this repository after those files are pushed. A heading above every Python excerpt gives the full path and function name. Original objective/training excerpts use the archived reference file at `docs/reference/dinov3_original_source/variants/dinov3/trainer.py`, copied byte-for-byte from the original experiment snapshot, so the cited lines show the evaluated implementation. It is documentation evidence, not an alternate executable trainer.
+
+The official DINOv3 implementation is a separate local dependency under `external/dinov3/dinov3/hub/backbones.py`; the project's integration point is the factory call in `variants/dinov3/model.py`. Neither `external/dinov3/` nor pretrained weights need to be uploaded as ordinary project source files.
+
+### Entry point: where training creates DINOv3 and CA-TCC's temporal module
+
+**Code source:** `variants/dinov3/main.py` → `model and temporal_contr_model construction`. [Open the exact source lines](variants/dinov3/main.py#L180-L184).
+
+```python
+model = DinoAudioModel(configs, repo=args.dinov3_repo, weights=args.dinov3_weights,
+                       initialization=args.initialization, image_height=args.image_height,
+                       clip_z=args.clip_z, backbone_policy=args.backbone_policy).to(device)
+temporal_contr_model = TC(configs, device).to(device)
+```
+
+The encoder is selected through this separate entry point. The baseline does not silently change its CNN implementation when a DINOv3 experiment is run.
+
 ### Where the encoder is replaced
 
 [DinoSequenceEncoder and DinoAudioModel](variants/dinov3/model.py) replace the baseline's three CNN blocks from [models/model.py](models/model.py). The integration is isolated in `variants/dinov3/`; the baseline entry point, trainer, and loss definitions are retained.
@@ -63,6 +111,8 @@ The temporal module uses a 100-dimensional context and projects it to 32-dimensi
 
 The encoder/classifier boundary is explicit in `DinoAudioModel`. Both encoders must supply a temporal sequence compatible with CA-TCC; the DINOv3 version learns a 384→128 projection rather than substituting a single global CLS vector.
 
+**Code source:** `variants/dinov3/model.py` → `DinoAudioModel.__init__`. [Open the exact source lines](variants/dinov3/model.py#L72-L81).
+
 ```python
 def __init__(self, config, repo, weights=None, initialization='pretrained', image_height=64,
              clip_z=4.0, backbone_policy='trainable'):
@@ -76,6 +126,8 @@ def __init__(self, config, repo, weights=None, initialization='pretrained', imag
     self.configure_stage('self_supervised')
 ```
 
+**Code source:** `variants/dinov3/model.py` → `DinoAudioModel.forward`. [Open the exact source lines](variants/dinov3/model.py#L105-L107).
+
 ```python
 def forward(self, x):
     features = self.encoder(x)
@@ -87,6 +139,8 @@ The classifier receives `128×15=1,920` values for Speech Commands or `128×77=9
 ### Loading the official pretrained backbone
 
 The constructor creates the official `dinov3_vits16` architecture locally and loads an explicit state dict. No fallback silently changes a missing pretrained checkpoint into a random-initialization experiment.
+
+**Code source:** `variants/dinov3/model.py` → `DinoSequenceEncoder.__init__`. [Open the exact source lines](variants/dinov3/model.py#L30-L42).
 
 ```python
 # DinoSequenceEncoder.__init__ — excerpt; local import/path checks omitted.
@@ -102,6 +156,8 @@ The source and checkpoint hashes are stored in `run_config.json`/source provenan
 ### Adapter forward pass: exactly how patch tokens become a sequence
 
 The following function is from [DinoSequenceEncoder.forward](variants/dinov3/model.py). Each operation corresponds to the data flow and shape table above.
+
+**Code source:** `variants/dinov3/model.py` → `DinoSequenceEncoder.forward`. [Open the exact source lines](variants/dinov3/model.py#L53-L68).
 
 ```python
 def forward(self, x):
@@ -148,6 +204,8 @@ Each stage starts its own optimizer. Linear/fine-tuning stages load encoder weig
 
 `configure_stage()` resets the stage's `requires_grad` flags, freezes the whole encoder for linear evaluation, and applies the optional backbone-only policy:
 
+**Code source:** `variants/dinov3/model.py` → `DinoAudioModel.configure_stage`. [Open the exact source lines](variants/dinov3/model.py#L83-L95).
+
 ```python
 def configure_stage(self, training_mode):
     self.linear_probe = 'train_linear' in training_mode
@@ -165,6 +223,8 @@ def configure_stage(self, training_mode):
 ```
 
 The overridden `train()` also keeps the frozen encoder in evaluation mode. `requires_grad=False` and `eval()` serve different purposes: the first blocks parameter gradients; the second controls mode-dependent behavior.
+
+**Code source:** `variants/dinov3/model.py` → `DinoAudioModel.train`. [Open the exact source lines](variants/dinov3/model.py#L97-L103).
 
 ```python
 def train(self, mode=True):
@@ -216,6 +276,8 @@ $$
 
 The matching sample is the diagonal entry; other samples in the batch act as negatives. A random context time is chosen on each TC call, and the two directions are evaluated separately.
 
+**Code source:** `models/TC.py` → `TC.forward (future prediction and temporal reduction)`. [Open the exact source lines](models/TC.py#L44-L54).
+
 ```python
 # models/TC.py — excerpt after future targets/context have been prepared.
 c_t = self.seq_transformer(forward_seq)
@@ -254,6 +316,8 @@ The positive is retained in the denominator; self-pairs are excluded. In the imp
 
 <details>
 <summary><strong>Original NTXentLoss.forward implementation</strong></summary>
+
+**Code source:** `models/loss.py` → `NTXentLoss.forward`. [Open the exact source lines](models/loss.py#L47-L65).
 
 ```python
 def forward(self, zis, zjs):
@@ -305,6 +369,8 @@ This section follows the original `SupConLoss.forward()` in [models/loss.py](mod
 
 **Positive pairs and self exclusion.** The code first builds a `[B,B]` label-equality mask. It repeats that mask across the two views to obtain `[2B,2B]`, then sets the diagonal to zero. For each anchor, the remaining vectors with the same pseudo-label are positives; vectors with different pseudo-labels are negatives. The other view of the same sample remains a positive, so each anchor has at least one positive in this two-view configuration.
 
+**Code source:** `models/loss.py` → `SupConLoss.forward (positive masks and self exclusion)`. [Open the exact source lines](models/loss.py#L105-L141).
+
 ```python
 # models/loss.py — SupConLoss.forward excerpts.
 labels = labels.contiguous().view(-1, 1)
@@ -324,6 +390,8 @@ The two masks serve different purposes: `mask` selects positive pairs for the nu
 
 **Exact reduction to a scalar.** For each anchor, the code averages log probabilities over its positive pairs. It multiplies by the original `-temperature` prefactor, reshapes to `[2,B]`, then averages over views and samples:
 
+**Code source:** `models/loss.py` → `SupConLoss.forward (scalar loss reduction)`. [Open the exact source lines](models/loss.py#L143-L155).
+
 ```python
 # models/loss.py — original log-probability/reduction code.
 exp_logits = torch.exp(logits) * logits_mask
@@ -341,6 +409,8 @@ Unlike NT-Xent's cosine setting, this original SupCon implementation directly us
 ### Where the original trainer assembles both contrastive losses
 
 This is an excerpt of `model_train()` from the original experiment's archived trainer. It shows the two encoder views, temporal/contextual outputs, exact coefficients and classification alternative in one place:
+
+**Code source:** `docs/reference/dinov3_original_source/variants/dinov3/trainer.py` → `model_train (original archived stage objectives)`. [Open the exact source lines](docs/reference/dinov3_original_source/variants/dinov3/trainer.py#L111-L181).
 
 ```python
 if training_mode == "self_supervised" or training_mode == "SupCon":
@@ -400,6 +470,8 @@ During linear probing, only the classifier learns. During fine-tuning, gradients
 
 ### Classification code: raw logits go to Cross-Entropy
 
+**Code sources:** [Cross-Entropy construction](docs/reference/dinov3_original_source/variants/dinov3/trainer.py#L27) and [model_train classification branch](docs/reference/dinov3_original_source/variants/dinov3/trainer.py#L111-L181). Both citations refer to the archived original trainer.
+
 ```python
 # Original DINOv3 trainer — classification path, excerpt.
 criterion = nn.CrossEntropyLoss()
@@ -414,6 +486,8 @@ loss = criterion(predictions, labels)
 ### How and where parameters are updated
 
 The [DINOv3 entry point](variants/dinov3/main.py) creates two Adam optimizers: one for enabled model parameters, another for TC. The [trainer](variants/dinov3/trainer.py) computes the appropriate scalar loss and applies:
+
+**Code source:** `docs/reference/dinov3_original_source/variants/dinov3/trainer.py` → `model_train (zero_grad, backward and optimizer steps)`. [Open the exact source lines](docs/reference/dinov3_original_source/variants/dinov3/trainer.py#L111-L181).
 
 ```python
 model_optimizer.zero_grad()
@@ -452,6 +526,8 @@ $$
 This chain exists only when the backbone forward is tracked and its parameters are enabled. For contrastive stages, the gradient instead passes through contextual/temporal operations back into the same encoder. During linear probing, the encoder's graph is disabled/frozen, so only classifier weights are updated.
 
 The original optimizers are configured in `variants/dinov3/main.py`:
+
+**Code source:** `variants/dinov3/main.py` → `model_optimizer and temporal_contr_optimizer initialization`. [Open the exact source lines](variants/dinov3/main.py#L266-L270).
 
 ```python
 model_optimizer = torch.optim.Adam(
@@ -661,7 +737,7 @@ This helper generates explanatory diagrams only; it does not create training cur
 
 ### Code excerpt provenance
 
-The model/trainer/optimizer excerpts were checked against the original Speech Commands [source snapshot](artifacts/dinov3_speechcommands_ravdess_best_10p_20261018/source_snapshot.zip). Blocks marked “excerpt” omit surrounding validation, allocation or setup code. They explain actual project functions and are not copied from the satellite-model reference repository. The checked source hashes are recorded in [code excerpt provenance](docs/reference/dinov3_original_code_excerpt_sources.json).
+The model/trainer/optimizer excerpts were checked against the original Speech Commands [source snapshot](artifacts/dinov3_speechcommands_ravdess_best_10p_20261018/source_snapshot.zip). A line-addressable copy of its trainer is provided in [the archived source reference](docs/reference/dinov3_original_source/variants/dinov3/trainer.py). Blocks marked “excerpt” omit surrounding validation, allocation or setup code. They explain actual project functions and are not copied from the satellite-model reference repository. The checked source hashes are recorded in [code excerpt provenance](docs/reference/dinov3_original_code_excerpt_sources.json).
 
 ## Application
 
