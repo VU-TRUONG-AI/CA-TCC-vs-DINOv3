@@ -16,13 +16,17 @@ Source excerpts below come from the archived **18 October experiment snapshot**,
 
 ## 1. DINOv3 integration
 
-**Before: original CA-TCC with the CNN encoder**
+### Architecture overview
 
-![Original CA-TCC model before replacing the CNN encoder](docs/figures/dinov3_original/ca_tcc_original_encoder.png)
+![Overall CA-TCC with DINOv3 architecture](docs/figures/dinov3_original/architecture.png)
 
-**After: CA-TCC with the DINOv3 encoder**
+| Original CA-TCC encoder | DINOv3 audio encoder |
+|---|---|
+| ![Original CA-TCC encoder](docs/figures/dinov3_original/ca_tcc_original_encoder.png) | ![DINOv3 encoder integration](docs/figures/dinov3_original/ca_tcc_dinov3_encoder.png) |
 
-![CA-TCC model with DINOv3 replacing the encoder](docs/figures/dinov3_original/ca_tcc_dinov3_encoder.png)
+| Training pipeline | Loss/contrastive paths |
+|---|---|
+| ![Seven-stage training pipeline](docs/figures/dinov3_original/training_pipeline.png) | ![Temporal and contextual contrastive losses](docs/figures/dinov3_original/loss_paths.png) |
 
 ### How the DINOv3 integration was built: implementation map
 
