@@ -1,0 +1,12 @@
+{
+  "archive": "artifacts/dinov3_speechcommands_ravdess_best_10p_20261018/source_snapshot.zip",
+  "snapshot_sha256": "b2d99f003f332af296cd4eb0e3838e89c4746c9a94f37c6ae5ab217eb7773781",
+  "source_sha256": {
+    "variants/dinov3/model.py": "dfbb95723ba8619b4acb9b90d44517f9c654dd596d565d68c4e9dc39a11ee1cb",
+    "variants/dinov3/trainer.py": "b8ae009e857bb3962a0ed73ba7529ef996ba8e04812169ba78b52fa9593d658b",
+    "variants/dinov3/main.py": "ec6d5b226a33d126c5ad17befa455dfeea139d1573e8f4c56e7884b5a9e97047",
+    "models/loss.py": "d3aec341ba53eb027b2db891dd27a9d0e92bbd0b7926b2dfdfb54e5edac84d08",
+    "models/TC.py": "b2f23350d1a60d5708f13c58659ad6aa4c1401a060dd64bff8f5314bc8f469ac"
+  },
+  "scope": "Original October 17\u201318 implementation excerpts; no later loss experiment results"
+}

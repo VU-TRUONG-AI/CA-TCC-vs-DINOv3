@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1267.2pt" height="158.4pt" viewBox="0 0 1267.2 158.4" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-10-26T23:19:09.995650</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 158.4
+L 1267.2 158.4
+L 1267.2 -0
+L 0 -0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 7.92 122.4
+L 168.48 122.4
+L 168.48 36
+L 7.92 36
+z
+" clip-path="url(#p27b777fab3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 188.64 122.4
+L 349.2 122.4
+L 349.2 36
+L 188.64 36
+z
+" clip-path="url(#p27b777fab3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 369.36 122.4
+L 529.92 122.4
+L 529.92 36
+L 369.36 36
+z
+" clip-path="url(#p27b777fab3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 550.08 122.4
+L 710.64 122.4
+L 710.64 36
+L 550.08 36
+z
+" clip-path="url(#p27b777fab3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 730.8 122.4
+L 891.36 122.4
+L 891.36 36
+L 730.8 36
+z
+" clip-path="url(#p27b777fab3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 911.52 122.4
+L 1072.08 122.4
+L 1072.08 36
+L 911.52 36
+z
+" clip-path="url(#p27b777fab3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 1092.24 122.4
+L 1252.8 122.4
+L 1252.8 36
+L 1092.24 36
+z
+" clip-path="url(#p27b777fab3)" style="fill: #ffffff; stroke: #000000; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'Liberation Serif'; text-anchor: middle" x="88.2" y="60.773574" transform="rotate(-0 88.2 60.773574)">Self-supervised</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 11.5px; font-family: 'Liberation Serif'" transform="translate(51.78543 85.627544)">Full training set</text>
+    <text style="font-size: 11.5px; font-family: 'Liberation Serif'" transform="translate(66.322148 102.495034)">No labels</text>
+   </g>
+   <g id="patch_9">
+    <path d="M 169.92 79.2
+Q 178.56 79.2 186.193769 79.2
+" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 182.193769 77.2
+L 186.193769 79.2
+L 182.193769 81.2
+z
+" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'Liberation Serif'; text-anchor: middle" x="268.92" y="60.707559" transform="rotate(-0 268.92 60.707559)">Linear evaluation</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 11.5px; font-family: 'Liberation Serif'" transform="translate(229.325859 86.792817)">10% labeled data</text>
+    <text style="font-size: 11.5px; font-family: 'Liberation Serif'" transform="translate(233.641953 102.553433)">Encoder frozen</text>
+   </g>
+   <g id="patch_10">
+    <path d="M 350.64 79.2
+Q 359.28 79.2 366.913769 79.2
+" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 362.913769 77.2
+L 366.913769 79.2
+L 362.913769 81.2
+z
+" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'Liberation Serif'; text-anchor: middle" x="449.64" y="60.675312" transform="rotate(-0 449.64 60.675312)">Fine-tuning</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 11.5px; font-family: 'Liberation Serif'" transform="translate(410.045859 86.792817)">10% labeled data</text>
+    <text style="font-size: 11.5px; font-family: 'Liberation Serif'" transform="translate(408.931797 102.495034)">Encoder trainable</text>
+   </g>
+   <g id="patch_11">
+    <path d="M 531.36 79.2
+Q 540 79.2 547.633769 79.2
+" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 543.633769 77.2
+L 547.633769 79.2
+L 543.633769 81.2
+z
+" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'Liberation Serif'; text-anchor: middle" x="630.36" y="60.675312" transform="rotate(-0 630.36 60.675312)">Pseudo-labeling</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 11.5px; font-family: 'Liberation Serif'" transform="translate(593.94543 85.627544)">Full training set</text>
+    <text style="font-size: 11.5px; font-family: 'Liberation Serif'" transform="translate(608.656445 102.553433)">Inference</text>
+   </g>
+   <g id="patch_12">
+    <path d="M 712.08 79.2
+Q 720.72 79.2 728.353769 79.2
+" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 724.353769 77.2
+L 728.353769 79.2
+L 724.353769 81.2
+z
+" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'Liberation Serif'; text-anchor: middle" x="811.08" y="60.599268" transform="rotate(-0 811.08 60.599268)">SupCon</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 11.5px; font-family: 'Liberation Serif'" transform="translate(774.66543 85.627544)">Full training set</text>
+    <text style="font-size: 11.5px; font-family: 'Liberation Serif'" transform="translate(779.139648 102.495034)">Pseudo-labels</text>
+   </g>
+   <g id="patch_13">
+    <path d="M 892.8 79.2
+Q 901.44 79.2 909.073769 79.2
+" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 905.073769 77.2
+L 909.073769 79.2
+L 905.073769 81.2
+z
+" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'Liberation Serif'; text-anchor: middle" x="991.8" y="60.707559" transform="rotate(-0 991.8 60.707559)">Linear evaluation</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 11.5px; font-family: 'Liberation Serif'" transform="translate(952.205859 86.792817)">10% labeled data</text>
+    <text style="font-size: 11.5px; font-family: 'Liberation Serif'" transform="translate(956.521953 102.553433)">Encoder frozen</text>
+   </g>
+   <g id="patch_14">
+    <path d="M 1073.52 79.2
+Q 1082.16 79.2 1089.793769 79.2
+" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 1085.793769 77.2
+L 1089.793769 79.2
+L 1085.793769 81.2
+z
+" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="text_13">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'Liberation Serif'; text-anchor: middle" x="1172.52" y="60.675312" transform="rotate(-0 1172.52 60.675312)">Fine-tuning</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 11.5px; font-family: 'Liberation Serif'" transform="translate(1132.925859 86.792817)">10% labeled data</text>
+    <text style="font-size: 11.5px; font-family: 'Liberation Serif'" transform="translate(1131.811797 102.495034)">Encoder trainable</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p27b777fab3">
+   <rect x="3.6" y="3.6" width="1260" height="151.2"/>
+  </clipPath>
+ </defs>
+</svg>
