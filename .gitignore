@@ -79,3 +79,9 @@ sites/ca-tcc-audio-studio/.openai/
 
 # do not track personal notes or non-project docs
 *.log
+
+# CI/CD prepared model bundles (published separately as release assets)
+/build/
+/output/deployment/
+# Restored, independently managed Sites source checkout
+/sites/ca-tcc-hosted-source/

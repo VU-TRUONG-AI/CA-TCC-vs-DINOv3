@@ -1,0 +1,17 @@
+**
+!Dockerfile
+!deployment/
+!deployment/requirements.txt
+!deployment/DINOv3_LICENSE.md
+!web/
+!web/**
+!scripts/
+!scripts/audio_features.py
+!datasets/
+!datasets/pipeline/
+!datasets/pipeline/__init__.py
+!datasets/pipeline/audio_features.py
+!build/
+!build/models/
+!build/models/**
+**/__pycache__

@@ -1,4 +1,4 @@
-"""Loopback-only HTTP server for the local CA-TCC research application."""
+"""HTTP server for the CA-TCC demo; loopback by default, configurable for Docker."""
 import argparse
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -6,14 +6,14 @@ from pathlib import Path
 import tempfile
 from urllib.parse import parse_qs, unquote, urlparse
 
-from web.batch import JobStore, MAX_UPLOAD, MAX_FILE, ROOT
+from web.batch import JobStore, BundlePredictor, DATASETS, MAX_UPLOAD, MAX_FILE, ROOT
 
 STATIC = Path(__file__).parent / 'static'
 DOWNLOADS = {'predictions.csv': 'text/csv; charset=utf-8', 'errors.csv': 'text/csv; charset=utf-8',
              'metrics.json': 'application/json', 'report.html': 'text/html; charset=utf-8'}
 
 
-def handler_for(store):
+def handler_for(store, allowed_hosts=None, allowed_origins=None):
     class Handler(BaseHTTPRequestHandler):
         def respond(self, status, body, content_type='application/json; charset=utf-8', attachment=None):
             if not isinstance(body, bytes):
@@ -31,6 +31,10 @@ def handler_for(store):
         def do_GET(self):
             try:
                 path = urlparse(self.path).path
+                if path == '/healthz':
+                    models = store.models()
+                    ready = len(models) == 2 and all(item['ready'] for item in models)
+                    return self.respond(200 if ready else 503, {'ready': ready, 'models': models})
                 if path == '/api/models':
                     return self.respond(200, store.models())
                 if path == '/api/jobs':
@@ -75,10 +79,12 @@ def handler_for(store):
             try:
                 # Requests from other websites must not submit local jobs.
                 host = self.headers.get('Host', '')
-                if host not in (f'127.0.0.1:{self.server.server_port}', f'localhost:{self.server.server_port}'):
+                hosts = allowed_hosts or {f'127.0.0.1:{self.server.server_port}', f'localhost:{self.server.server_port}'}
+                origins = allowed_origins or {f'http://127.0.0.1:{self.server.server_port}', f'http://localhost:{self.server.server_port}'}
+                if host not in hosts:
                     return self.respond(403, {'error': 'Host không hợp lệ.'})
                 origin = self.headers.get('Origin')
-                if origin and origin not in (f'http://127.0.0.1:{self.server.server_port}', f'http://localhost:{self.server.server_port}'):
+                if origin and origin not in origins:
                     return self.respond(403, {'error': 'Origin không hợp lệ.'})
                 length = int(self.headers.get('Content-Length', '0'))
                 if length < 0 or length > MAX_UPLOAD:
@@ -129,10 +135,19 @@ def handler_for(store):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--port', type=int, default=8000)
+    parser.add_argument('--host', default='127.0.0.1')
+    parser.add_argument('--allowed-host', action='append', help='Exact HTTP Host, including port; repeat as needed.')
+    parser.add_argument('--allowed-origin', action='append', help='Exact browser Origin; repeat as needed.')
+    parser.add_argument('--preload', action='store_true', help='Load both models before accepting requests.')
     parser.add_argument('--jobs', type=Path, default=ROOT / 'runtime_jobs')
     parser.add_argument('--bundles', type=Path, default=ROOT / 'artifacts' / 'models')
     args = parser.parse_args()
-    server = ThreadingHTTPServer(('127.0.0.1', args.port), handler_for(JobStore(args.jobs, args.bundles)))
+    store = JobStore(args.jobs, args.bundles)
+    if args.preload:
+        for dataset in DATASETS:
+            store.predictors[dataset] = BundlePredictor(args.bundles / dataset, dataset)
+    server = ThreadingHTTPServer((args.host, args.port), handler_for(
+        store, args.allowed_host, args.allowed_origin))
     print(f'CA-TCC Audio Lab: http://127.0.0.1:{args.port}', flush=True)
     try:
         server.serve_forever()
