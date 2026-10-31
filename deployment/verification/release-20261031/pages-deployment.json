@@ -1,0 +1,10 @@
+{
+  "code_revision": "512936f26e68c1ccc275f8c297e381320283f69c",
+  "model_manifest_sha256": "8a9f047f059103dda2e6743e2b65d450c709023604f29b4c8409844719f43770",
+  "engine": "onnxruntime-web-wasm",
+  "requires_local_backend": false,
+  "models": {
+    "RAVDESS": "9300c2932f9632618007eca1ac291e201ac399cf2c676f0f104b1730008f80e2",
+    "SpeechCommands": "b6150850650b43fe1fecab6708479112258f5f7dee12cabaf901282ff2d904ed"
+  }
+}

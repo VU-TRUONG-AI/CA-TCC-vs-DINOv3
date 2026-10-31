@@ -1,0 +1,23 @@
+{
+  "pr_url": "https://github.com/VU-TRUONG-AI/CA-TCC-vs-DINOv3/pull/1",
+  "source_commit": "512936f26e68c1ccc275f8c297e381320283f69c",
+  "dockerhub_namespace": "truongdepzai205",
+  "dockerhub_verified": true,
+  "ci_verified": true,
+  "pages_verified": true,
+  "pages_configured_url": "https://vu-truong-ai.github.io/CA-TCC-vs-DINOv3/",
+  "ci_url": "https://github.com/VU-TRUONG-AI/CA-TCC-vs-DINOv3/actions/runs/41166228600",
+  "ci_source_commit": "512936f26e68c1ccc275f8c297e381320283f69c",
+  "pr_merged": true,
+  "model_assets_verified": true,
+  "model_assets_sha256": "06f1e6ddea3ddf2fc37cf91a121264d1725546ab15951ce5036581a36a88bf8a",
+  "image_local_size_bytes": 1992905153,
+  "repo_url": "https://github.com/VU-TRUONG-AI/CA-TCC-vs-DINOv3",
+  "release_run_url": "https://github.com/VU-TRUONG-AI/CA-TCC-vs-DINOv3/actions/runs/41179704476",
+  "dockerhub_url": "https://hub.docker.com/r/truongdepzai205/ca-tcc-audio",
+  "pages_url": "https://vu-truong-ai.github.io/CA-TCC-vs-DINOv3/",
+  "image_digest": "truongdepzai205/ca-tcc-audio@sha256:5eda4588f9cbe3eccac1b0d40a3df742071516969fb74356b6a155c3968123ea",
+  "image_tag": "truongdepzai205/ca-tcc-audio:sha-512936f26e68c1ccc275f8c297e381320283f69c",
+  "browser_inference_verified": true,
+  "browser_verification_note": "Đã chạy cả hai tác vụ trên GitHub Pages khi server local ở cổng 8000 và 8011 đều dừng. RAVDESS hiển thị nhãn Buồn với điểm 0,40; SpeechCommands hiển thị down với điểm 0,17. Nhãn đứng đầu khớp API. Thời gian hiển thị lần đầu lần lượt là 168,16 và 178,63 giây, bao gồm tải và khởi tạo model; không dùng các số này làm benchmark tốc độ suy luận. Chưa xác minh tệp CSV tải xuống, thiết bị điện thoại thật hoặc thao tác tắt vật lý máy cá nhân."
+}

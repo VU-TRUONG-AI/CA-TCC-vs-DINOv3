@@ -1,0 +1,21 @@
+{
+  "url": "https://vu-truong-ai.github.io/CA-TCC-vs-DINOv3/",
+  "source_commit": "512936f26e68c1ccc275f8c297e381320283f69c",
+  "local_api_stopped": true,
+  "local_static_server_stopped": true,
+  "RAVDESS": {
+    "ui_top_label": "Buồn",
+    "ui_score_rounded": 0.4,
+    "displayed_total_seconds": 168.16,
+    "screenshot": "pages.jpg"
+  },
+  "SpeechCommands": {
+    "ui_top_label": "down",
+    "ui_score_rounded": 0.17,
+    "displayed_total_seconds": 178.63,
+    "screenshot": "pages-speech.jpg"
+  },
+  "test_scope": "UI inference for two real WAV fixtures; not accuracy evaluation or latency benchmark",
+  "csv_download_verified": false,
+  "physical_power_off_tested": false
+}
