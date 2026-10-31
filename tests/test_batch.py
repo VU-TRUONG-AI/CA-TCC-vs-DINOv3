@@ -2,6 +2,7 @@
 import io
 import json
 from pathlib import Path
+from unittest.mock import patch
 import tempfile
 import time
 import unittest
@@ -37,7 +38,11 @@ class BatchTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
+        # Tests must not read training data from the developer's checkout.
+        self.source_patch = patch('web.batch.ROOT', self.root / 'empty-source')
+        self.source_patch.start()
     def tearDown(self):
+        self.source_patch.stop()
         self.tmp.cleanup()
     def test_single_wav_prediction_and_duration_guard(self):
         store = JobStore(self.root/'jobs', self.root/'bundles', predictor_factory=FakePredictor)
@@ -76,7 +81,7 @@ class BatchTests(unittest.TestCase):
     def test_batch_job_reports_and_partial_labels(self):
         store=JobStore(self.root/'jobs', self.root/'models', FakePredictor)
         bundle=self.root/'models'/'SpeechCommands';bundle.mkdir(parents=True)
-        (bundle/'metadata.json').write_text(json.dumps({'purpose':'test_double_only'}))
+        (bundle/'metadata.json').write_text(json.dumps({'purpose':'test_double_only', 'classes':['yes','no']}))
         for name in ('classifier.ts','normalization.npz'): (bundle/name).touch()
         archive(self.root/'input.zip', {'a.wav':wav(),'b.wav':wav(),'bad.wav':b'bad',
                                       'labels.csv':b'file,label\na.wav,yes\nbad.wav,no'})
@@ -98,6 +103,8 @@ class BatchTests(unittest.TestCase):
         with self.assertRaises(ValueError):store.start(job['id'])
     def test_extra_csv_path_rejected(self):
         store=JobStore(self.root/'jobs',self.root/'models')
+        bundle=self.root/'models/SpeechCommands';bundle.mkdir(parents=True)
+        (bundle/'metadata.json').write_text(json.dumps({'classes':['yes','no']}))
         archive(self.root/'input.zip',{'a.wav':wav(),'labels.csv':b'file,label\nmissing.wav,yes'})
         with self.assertRaises(ValueError):store.create(self.root/'input.zip','SpeechCommands')
     def test_no_bundle_blocks_start_but_not_inspection(self):

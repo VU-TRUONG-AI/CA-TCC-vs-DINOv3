@@ -1,0 +1,133 @@
+name: Release AI Docker image
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      MODEL_ASSETS_URL: ${{ vars.MODEL_ASSETS_URL }}
+      MODEL_ASSETS_SHA256: ${{ vars.MODEL_ASSETS_SHA256 }}
+      DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Require release configuration
+        run: |
+          test -n "$DOCKERHUB_USERNAME" || { echo 'Set DOCKERHUB_USERNAME repository variable'; exit 1; }
+          test -n "$MODEL_ASSETS_URL" || { echo 'Upload deployment-assets.zip and set MODEL_ASSETS_URL'; exit 1; }
+      - name: Download and verify both models
+        run: python scripts/deployment_assets.py fetch --url "$MODEL_ASSETS_URL" --sha256 "$MODEL_ASSETS_SHA256"
+      - name: Assemble versioned browser deployment
+        if: vars.ENABLE_PAGES == 'true'
+        run: python scripts/build_browser_release.py --revision "$GITHUB_SHA"
+      - run: pip install -r deployment/requirements.txt
+      - name: Verify exported ONNX numerical parity
+        if: vars.ENABLE_PAGES == 'true'
+        run: |
+          pip install onnxruntime==1.22.1
+          python scripts/verify_browser_release.py
+      - run: python -m unittest discover -s tests -p 'test_batch.py' -v
+      - run: python -m unittest discover -s tests -p 'test_server_deployment.py' -v
+      - run: python -m unittest discover -s tests -p 'test_deployment_assets.py' -v
+      - uses: docker/setup-buildx-action@v4
+      - name: Build candidate (local path includes downloaded models)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          push: false
+          tags: ca-tcc-audio:test
+          build-args: |
+            SOURCE_REVISION=${{ github.sha }}
+            MODEL_ASSETS_SHA256=${{ vars.MODEL_ASSETS_SHA256 }}
+      - name: Start candidate
+        run: docker run -d --name audio-test -p 127.0.0.1:8000:8000 ca-tcc-audio:test
+      - name: Test actual models through container HTTP API
+        run: python scripts/smoke_audio_api.py --fixtures build/fixtures --output container-smoke.json
+      - name: Save verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: container-verification
+          path: |
+            container-smoke.json
+            output/deployment/onnx-verification.json
+            build/web-dist/deployment.json
+            build/deployment-manifest.json
+          if-no-files-found: ignore
+      - name: Container logs and cleanup
+        if: always()
+        run: |
+          docker logs audio-test || true
+          docker rm -f audio-test || true
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Tag and push exactly the tested image
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          IMAGE="$DOCKERHUB_USERNAME/ca-tcc-audio"
+          docker tag ca-tcc-audio:test "$IMAGE:sha-$GITHUB_SHA"
+          docker push "$IMAGE:sha-$GITHUB_SHA"
+          if [ "$REF_TYPE" = tag ]; then
+            docker tag ca-tcc-audio:test "$IMAGE:$RELEASE_TAG"
+            docker push "$IMAGE:$RELEASE_TAG"
+          fi
+          echo "Published $IMAGE:sha-$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+      - name: Pull published image and verify its API again
+        run: |
+          IMAGE="$DOCKERHUB_USERNAME/ca-tcc-audio:sha-$GITHUB_SHA"
+          docker pull "$IMAGE"
+          docker image inspect "$IMAGE" --format '{{json .RepoDigests}}' > image-digests.json
+          docker run -d --name audio-published -p 127.0.0.1:8000:8000 "$IMAGE"
+          python scripts/smoke_audio_api.py --fixtures build/fixtures --output published-smoke.json
+      - name: Save published-image evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: published-image-verification
+          path: |
+            published-smoke.json
+            image-digests.json
+          if-no-files-found: ignore
+      - name: Clean up published test
+        if: always()
+        run: |
+          docker logs audio-published || true
+          docker rm -f audio-published || true
+      - name: Upload static web for Pages
+        if: vars.ENABLE_PAGES == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web-dist
+  pages:
+    if: vars.ENABLE_PAGES == 'true'
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/configure-pages@v5
+      - name: Deploy verified browser release
+        id: deployment
+        uses: actions/deploy-pages@v4

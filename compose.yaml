@@ -1,0 +1,12 @@
+services:
+  audio:
+    image: ${AUDIO_IMAGE:?Set AUDIO_IMAGE to a published Docker Hub image and version}
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - audio_jobs:/jobs
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+volumes:
+  audio_jobs:

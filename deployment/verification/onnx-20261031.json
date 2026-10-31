@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "runtime": "1.22.1",
+  "test_type": "ONNX CPU parity; browser UI not exercised",
+  "datasets": {
+    "RAVDESS": {
+      "passed": true,
+      "maximum_probability_error": 1.0132789611816406e-06,
+      "top_label": "sad",
+      "model_sha256": "9300c2932f9632618007eca1ac291e201ac399cf2c676f0f104b1730008f80e2"
+    },
+    "SpeechCommands": {
+      "passed": true,
+      "maximum_probability_error": 2.5331974029541016e-07,
+      "top_label": "down",
+      "model_sha256": "b6150850650b43fe1fecab6708479112258f5f7dee12cabaf901282ff2d904ed"
+    }
+  }
+}

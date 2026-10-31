@@ -1,0 +1,26 @@
+name: Audio CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: deployment/requirements.txt
+      - run: pip install -r deployment/requirements.txt
+      - name: Batch safety, reports and HTTP deployment contract
+        run: python -m unittest discover -s tests -p 'test_batch.py' -v
+      - run: python -m unittest discover -s tests -p 'test_server_deployment.py' -v
+      - run: python -m unittest discover -s tests -p 'test_deployment_assets.py' -v
+      - name: Compile deployment entry points
+        run: python -m py_compile web/server.py scripts/deployment_assets.py scripts/smoke_audio_api.py scripts/build_browser_release.py
