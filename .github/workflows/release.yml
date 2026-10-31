@@ -59,7 +59,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: container-verification
-          path: container-smoke.json
+          path: |
+            container-smoke.json
+            output/deployment/onnx-verification.json
+            build/web-dist/deployment.json
+            build/deployment-manifest.json
           if-no-files-found: ignore
       - name: Container logs and cleanup
         if: always()

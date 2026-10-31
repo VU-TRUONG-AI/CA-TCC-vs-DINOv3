@@ -207,3 +207,5 @@ python scripts/report_deployment.py
 ```
 
 Đầu ra là `output/pdf/BAO_CAO_CICD_DOCKER_AI.pdf`. Trình tạo đọc kết quả API, ONNX, container và `publication.json` trong `output/deployment/`. Không tự đánh dấu thành công các bước chưa có bằng chứng. PDF phải được render và kiểm tra trực quan trước khi nộp.
+
+Nếu cần upload chia phần trên mạng không ổn định, tạo release nháp rồi chạy `python scripts/upload_model_release.py`. Trình upload chỉ xử lý release nháp, bỏ qua phần đã tải thành công và giữ trạng thái để có thể tiếp tục. Khi đủ các phần, kiểm tra danh sách asset, rồi mới công bố release và cấu hình MODEL_ASSETS_URL trỏ tới index JSON.
