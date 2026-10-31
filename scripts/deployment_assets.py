@@ -8,6 +8,7 @@ import stat
 import tempfile
 import urllib.request
 import zipfile
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 DATASETS = ('RAVDESS', 'SpeechCommands')
@@ -133,7 +134,24 @@ def fetch(url, checksum):
     target = ROOT / 'build'
     with tempfile.TemporaryDirectory() as tmp:
         archive = Path(tmp) / 'assets.zip'
-        urllib.request.urlretrieve(url, archive)
+        if urlparse(url).path.endswith('.json'):
+            with urllib.request.urlopen(url, timeout=120) as response:
+                index = json.loads(response.read(1024 * 1024))
+            if index.get('schema') != 1 or index.get('archive_sha256') != checksum or not 1 <= len(index['parts']) <= 100:
+                raise ValueError('Invalid multipart release index')
+            if sum(part['bytes'] for part in index['parts']) > 1024**3:
+                raise ValueError('Release archive exceeds size limit')
+            with archive.open('wb') as target_stream:
+                for part in index['parts']:
+                    if not part['url'].startswith('https://') or not 0 < part['bytes'] <= 32 * 1024**2:
+                        raise ValueError('Invalid release part')
+                    with urllib.request.urlopen(part['url'], timeout=180) as response:
+                        data = response.read(part['bytes'] + 1)
+                    if len(data) != part['bytes'] or hashlib.sha256(data).hexdigest() != part['sha256']:
+                        raise ValueError('Release part checksum mismatch')
+                    target_stream.write(data)
+        else:
+            urllib.request.urlretrieve(url, archive)
         if sha(archive) != checksum:
             raise ValueError('Downloaded archive checksum mismatch')
         stage = Path(tmp) / 'verified'
@@ -160,16 +178,36 @@ def fetch(url, checksum):
             shutil.copy2(stage / name, target / name)
     print('Verified release assets')
 
+def split(base):
+    output = ROOT / 'output/deployment'
+    archive = output / 'deployment-assets.zip'
+    if not base.startswith('https://'):
+        raise ValueError('Release base URL must use HTTPS')
+    base = base.rstrip('/') + '/'
+    index = {'schema': 1, 'archive_sha256': sha(archive), 'parts': []}
+    with archive.open('rb') as source:
+        number = 0
+        while data := source.read(8 * 1024**2):
+            name = f'deployment-assets.part-{number:02d}'
+            (output / name).write_bytes(data)
+            index['parts'].append({'url': base + name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+            number += 1
+    (output / 'deployment-assets.index.json').write_text(json.dumps(index, indent=2))
+    print(json.dumps({'parts': len(index['parts']), 'archive_sha256': index['archive_sha256']}, indent=2))
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=['prepare', 'fetch', 'verify'])
+    parser.add_argument('command', choices=['prepare', 'fetch', 'verify', 'split'])
     parser.add_argument('--url')
     parser.add_argument('--sha256')
+    parser.add_argument('--release-base-url', default='https://github.com/VU-TRUONG-AI/CA-TCC-vs-DINOv3/releases/download/model-assets-v1/')
     args = parser.parse_args()
     if args.command == 'prepare':
         prepare()
     elif args.command == 'fetch':
         fetch(args.url or '', args.sha256 or '')
+    elif args.command == 'split':
+        split(args.release_base_url)
     else:
         verify(ROOT / 'build')
         print('Verified local release assets')

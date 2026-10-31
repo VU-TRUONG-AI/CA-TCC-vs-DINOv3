@@ -150,7 +150,8 @@ class JobStore:
             classes = json.loads(metadata.read_text()).get('classes')
             if isinstance(classes, list) and classes:
                 return classes
-        return json.loads((ROOT / 'datasets/processed/full' / dataset / 'manifest.json').read_text())['classes']
+        legacy = ROOT / 'datasets/processed/full' / dataset / 'manifest.json'
+        return json.loads(legacy.read_text())['classes'] if legacy.is_file() else []
 
     def models(self):
         output = []

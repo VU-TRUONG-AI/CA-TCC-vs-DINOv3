@@ -1,6 +1,7 @@
 """Release download rejects traversal, duplicates, tampering and undeclared files."""
 import hashlib
 import io
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -9,6 +10,14 @@ import zipfile
 from scripts.deployment_assets import safe_path, fetch
 
 class AssetTests(unittest.TestCase):
+    def test_multipart_download_rejects_corrupt_part(self):
+        index = {'schema':1, 'archive_sha256':'0'*64, 'parts':[
+            {'url':'https://example.com/part-00','bytes':3,'sha256':'0'*64}]}
+        def open_url(url, timeout):
+            return io.BytesIO(json.dumps(index).encode() if url.endswith('.json') else b'bad')
+        with patch('scripts.deployment_assets.urllib.request.urlopen', open_url):
+            with self.assertRaisesRegex(ValueError, 'part checksum'):
+                fetch('https://example.com/index.json', '0'*64)
     def test_asset_paths_cannot_escape_root(self):
         root = Path('/tmp/asset-root')
         for name in ('../outside', '/tmp/outside', 'a/../../outside', 'a\\outside'):

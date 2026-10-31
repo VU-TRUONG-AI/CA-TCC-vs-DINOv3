@@ -42,14 +42,14 @@ Model lớn không được commit trực tiếp vào Git. Từ môi trường �
 
 Script kiểm tra danh tính backbone, số lớp, checksum model và chunks. Archive có đường dẫn cố định và timestamp ZIP cố định. Các WAV chỉ dùng kiểm tra tương đương số học, không dùng suy ra accuracy/F1.
 
-Upload ZIP và SHA256 vào một GitHub Release có version riêng, ví dụ `model-assets-v1`. Giữ nguyên tài nguyên của release đã phát hành. Khi thay model, tạo release mới và cập nhật SHA256; không thay nội dung cũ mà giữ nguyên version.
+Upload ZIP và SHA256 vào một GitHub Release có version riêng, ví dụ `model-assets-v1`. Nếu mạng không ổn định với tệp lớn, chạy `python scripts/deployment_assets.py split`, upload các tệp `deployment-assets.part-*`, `deployment-assets.index.json` và SHA256; đặt MODEL_ASSETS_URL trỏ tới index JSON. Mỗi phần 8 MiB có checksum riêng; runner ghép lại và vẫn kiểm tra SHA256 toàn bộ ZIP. Khi đổi version release, truyền `--release-base-url` tương ứng cho lệnh split. Giữ nguyên tài nguyên của release đã phát hành. Khi thay model, tạo release mới và cập nhật SHA256; không thay nội dung cũ mà giữ nguyên version.
 
 Đặt repository variables trong Settings -> Secrets and variables -> Actions:
 
 | Tên | Giá trị |
 |---|---|
 | DOCKERHUB_USERNAME | Username Docker Hub thực tế |
-| MODEL_ASSETS_URL | URL HTTPS tải trực tiếp ZIP từ release công khai |
+| MODEL_ASSETS_URL | URL HTTPS của ZIP hoặc index JSON chia phần từ release công khai |
 | MODEL_ASSETS_SHA256 | 64 ký tự SHA256 từ file đi kèm |
 | ENABLE_PAGES | true sau khi bật Pages và muốn triển khai web |
 
