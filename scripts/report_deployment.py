@@ -6,7 +6,7 @@ from html import escape
 import textwrap
 import subprocess
 from reportlab.pdfgen import canvas
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle, Preformatted, KeepTogether
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle, Preformatted, KeepTogether, Image
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_LEFT, TA_JUSTIFY, TA_CENTER
@@ -31,7 +31,7 @@ styles.add(ParagraphStyle(name='BodyVN',fontName='VN',fontSize=14,leading=21,spa
 styles.add(ParagraphStyle(name='ListVN',parent=styles['BodyVN'],firstLineIndent=0,leftIndent=12))
 styles.add(ParagraphStyle(name='H1VN',fontName='VN-Bold',fontSize=16,leading=23,spaceBefore=14,spaceAfter=12,textColor=navy,keepWithNext=True))
 styles.add(ParagraphStyle(name='H2VN',fontName='VN-Bold',fontSize=14,leading=21,spaceBefore=10,spaceAfter=7,textColor=teal,keepWithNext=True))
-styles.add(ParagraphStyle(name='SmallVN',fontName='VN',fontSize=12,leading=17,spaceAfter=6,textColor=grey,alignment=TA_JUSTIFY))
+styles.add(ParagraphStyle(name='SmallVN',fontName='VN',fontSize=12,leading=17,spaceAfter=6,textColor=grey,alignment=TA_LEFT))
 styles.add(ParagraphStyle(name='CodeVN',fontName='VN',fontSize=11,leading=15,spaceBefore=6,spaceAfter=10,backColor=colors.HexColor('#f4f4f4'),borderPadding=7))
 styles.add(ParagraphStyle(name='TitleVN',fontName='VN-Bold',fontSize=22,leading=32,spaceAfter=22,textColor=navy,alignment=TA_CENTER))
 
@@ -61,7 +61,7 @@ container=evidence('container-verification.json')
 publication=evidence('publication.json') or {}
 complete=bool(container and publication.get('dockerhub_verified') and publication.get('ci_verified') and publication.get('pages_verified'))
 state='BÁO CÁO KẾT QUẢ TRIỂN KHAI' if complete else 'BẢN NHÁP - CÒN BƯỚC PHÁT HÀNH CHƯA XÁC NHẬN'
-story=[Spacer(1,42),p('CA-TCC + DINOv3','H2VN'),Paragraph('CI/CD cho AI<br/>và Docker image',styles['TitleVN']),p('Hướng dẫn thực hành từng bước bằng tiếng Việt'),p('SpeechCommands: 35 từ khóa | RAVDESS: 8 cảm xúc'),Spacer(1,20),p(state,'H2VN'),p('Ngày lập báo cáo: 31/10/2026. Kết quả được đối chiếu với các tệp kiểm tra đã lưu.','SmallVN'), p('Trình bày: '+('Times New Roman' if exact_font else font_family+' (font tạm, chờ Times New Roman)')+', nội dung 14 pt, giãn dòng 1,5.','SmallVN'),Spacer(1,22)]
+story=[Spacer(1,42),p('CA-TCC + DINOv3','H2VN'),Paragraph('CI/CD cho AI<br/>và Docker image',styles['TitleVN']),p('Báo cáo triển khai và hướng dẫn thực hiện'),p('SpeechCommands: 35 từ khóa | RAVDESS: 8 cảm xúc'),Spacer(1,20),p(state,'H2VN'),p('Ngày lập báo cáo: 31/10/2026. Kết quả được đối chiếu với các tệp kiểm tra đã lưu.','SmallVN'), p('Trình bày: '+('Times New Roman' if exact_font else font_family+' (font tạm, chờ Times New Roman)')+', nội dung 14 pt, giãn dòng 1,5.','SmallVN'),Spacer(1,22)]
 story.append(table([['Hạng mục','Trạng thái có bằng chứng'],['API/model trên máy','Đạt với WAV thật' if api and api.get('passed') else 'Chưa xác nhận'],['ONNX dùng cho web','Đạt kiểm tra số học CPU; chưa thay thế kiểm tra trình duyệt' if onnx and onnx.get('passed') else 'Chưa xác nhận'],['Docker container','Đạt kiểm tra container thật' if container and container.get('passed') else 'Chưa có kết quả container đạt'],['CI trên GitHub','Đã xác minh' if publication.get('ci_verified') else 'Có cấu hình; chưa có workflow run thành công được lưu'],['Docker Hub public','Đã push/pull xác minh' if publication.get('dockerhub_verified') else 'Chưa xác nhận public image'],['GitHub Pages CD','Đã triển khai và xác minh' if publication.get('pages_verified') else 'Có cấu hình; chưa xác nhận deploy thành công']]))
 story += [Spacer(1,18),p('Không thuê VPS. Web phục vụ tài nguyên tĩnh và chạy AI trên thiết bị người dùng. Docker là nhánh dịch vụ API độc lập.','SmallVN'),PageBreak()]
 story += [p('Kiến trúc triển khai và cách đọc báo cáo','H1VN'),p('Hai nhánh phục vụ hai mục đích: image Docker để tích hợp API; web tĩnh để demo khi máy cá nhân đã tắt. Tắt máy sẽ dừng container local nhưng không dừng bản web đã được hosting phân phối.'),table([['Nhánh','Luồng xử lý'],['Docker/API','WAV -> HTTP API -> log-mel + normalization -> TorchScript CPU -> JSON top-k'],['Web tĩnh','Trình duyệt -> tải ONNX chunks + WASM -> xử lý WAV trên thiết bị -> kết quả'],['CI','Push main / pull request -> kiểm tra logic, HTTP và xác minh tài nguyên'],['Phát hành + CD','Tag v* / Run workflow -> build/test -> push/pull Docker Hub -> deploy Pages']]),Spacer(1,12),p('Các kết quả đã kiểm tra','H2VN')]
@@ -113,6 +113,13 @@ for line in lines:
         flush_paragraph();story.append(p(line));continue
     paragraph.append(line)
 flush_paragraph();flush_table()
+for filename,caption in [('ci-success.jpg','Kết quả CI trên nhánh main'),('release-success.jpg','Kết quả phát hành Docker và triển khai Pages'),('dockerhub.jpg','Image công khai trên Docker Hub'),('pages.jpg','Giao diện web đã triển khai')]:
+    screenshot = ROOT / 'output/deployment' / filename
+    if screenshot.is_file():
+        from reportlab.lib.utils import ImageReader
+        width,height = ImageReader(str(screenshot)).getSize()
+        scale = min(439/width, 540/height)
+        story += [PageBreak(), p('Minh chứng triển khai','H1VN'),p(caption,'H2VN'),Image(str(screenshot),width=width*scale,height=height*scale),Spacer(1,10),p('Ảnh chụp từ kết quả thực tế ngày 31/10/2026.','SmallVN')]
 story += [PageBreak(),p('Phụ lục: bằng chứng và bước còn lại','H1VN'),p('Bằng chứng máy đọc được được lưu ở output/deployment/. Các file này ghi kết quả test thực tế; các mục chưa có bằng chứng không được đánh dấu hoàn tất.'),p('Danh sách file bằng chứng','H2VN')]
 for name in ['local-api-verification.json','onnx-verification.json','container-verification.json','docker-build.log','image-inspect.json','publication.json']:
     path=ROOT/'output/deployment'/name
@@ -133,9 +140,8 @@ class NumberedCanvas(canvas.Canvas):
         for state in self.states:
             self.__dict__.update(state)
             self.setStrokeColor(colors.HexColor('#dce4e8'));self.line(44,39,A4[0]-44,39)
-            self.setFont('VN',7);self.setFillColor(grey)
-            self.drawString(44,26,'CA-TCC + DINOv3 | CI/CD & Docker | 31/10/2026')
-            self.drawRightString(A4[0]-44,26,f'{self._pageNumber} / {count}')
+            self.setFont('VN',12);self.setFillColor(grey)
+            self.drawCentredString(A4[0]/2,27,str(self._pageNumber))
             canvas.Canvas.showPage(self)
         canvas.Canvas.save(self)
 

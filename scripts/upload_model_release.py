@@ -1,6 +1,7 @@
 """Upload small model-release parts sequentially; resume a draft without replacing assets."""
 import argparse
 import json
+import os
 from pathlib import Path
 import subprocess
 import time
@@ -11,8 +12,9 @@ parser.add_argument('--gh', default='gh')
 parser.add_argument('--repo', default='VU-TRUONG-AI/CA-TCC-vs-DINOv3')
 parser.add_argument('--tag', default='model-assets-v1')
 args=parser.parse_args()
+transport_env = {**os.environ, 'GODEBUG': 'http2client=0'}
 prefix=[args.gh,'release']
-value=subprocess.run([*prefix,'view',args.tag,'--repo',args.repo,'--json','assets,isDraft'],check=True,capture_output=True,text=True)
+value=subprocess.run([*prefix,'view',args.tag,'--repo',args.repo,'--json','assets,isDraft'],check=True,capture_output=True,text=True,env=transport_env)
 release=json.loads(value.stdout)
 if not release['isDraft']:
     raise SystemExit('Only resume a draft. Published model versions are immutable.')
@@ -28,7 +30,7 @@ for number,path in enumerate(paths,1):
         print(f'Already uploaded {number}/{len(paths)}: {path.name}',flush=True)
         continue
     for attempt in range(3):
-        result=subprocess.run([*prefix,'upload',args.tag,str(path),'--repo',args.repo],capture_output=True,text=True)
+        result=subprocess.run([*prefix,'upload',args.tag,str(path),'--repo',args.repo],capture_output=True,text=True,env=transport_env)
         if result.returncode==0:
             print(f'Uploaded {number}/{len(paths)}: {path.name}',flush=True)
             break
