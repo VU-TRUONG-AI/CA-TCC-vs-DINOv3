@@ -1,0 +1,133 @@
+{
+  "passed": true,
+  "fixture": "synthetic 440 Hz tone; no accuracy claim",
+  "datasets": {
+    "RAVDESS": {
+      "dataset": "RAVDESS",
+      "backbone": "dinov3_vits16",
+      "version": "11c7cc7c2bd54a2f",
+      "duration": 0.2,
+      "top_k": [
+        {
+          "label": "calm",
+          "probability": 0.7701935172080994
+        },
+        {
+          "label": "sad",
+          "probability": 0.1721346229314804
+        },
+        {
+          "label": "neutral",
+          "probability": 0.029461106285452843
+        },
+        {
+          "label": "disgust",
+          "probability": 0.009964668191969395
+        },
+        {
+          "label": "surprised",
+          "probability": 0.007340636104345322
+        }
+      ]
+    },
+    "SpeechCommands": {
+      "dataset": "SpeechCommands",
+      "backbone": "dinov3_vits16",
+      "version": "8c64f24b0786258d",
+      "duration": 0.2,
+      "top_k": [
+        {
+          "label": "up",
+          "probability": 0.6475142240524292
+        },
+        {
+          "label": "eight",
+          "probability": 0.13708369433879852
+        },
+        {
+          "label": "stop",
+          "probability": 0.030019864439964294
+        },
+        {
+          "label": "cat",
+          "probability": 0.024218779057264328
+        },
+        {
+          "label": "bed",
+          "probability": 0.021111665293574333
+        }
+      ]
+    }
+  },
+  "invalid_input_rejected": true,
+  "unexpected_origin_rejected": true,
+  "duration_guard_passed": true,
+  "real_wav_parity": {
+    "RAVDESS": {
+      "passed": true,
+      "max_probability_error": 1.4901161193847656e-07,
+      "response": {
+        "dataset": "RAVDESS",
+        "backbone": "dinov3_vits16",
+        "version": "11c7cc7c2bd54a2f",
+        "duration": 3.5035,
+        "top_k": [
+          {
+            "label": "sad",
+            "probability": 0.40072396397590637
+          },
+          {
+            "label": "calm",
+            "probability": 0.33862757682800293
+          },
+          {
+            "label": "disgust",
+            "probability": 0.11856038868427277
+          },
+          {
+            "label": "neutral",
+            "probability": 0.07564766705036163
+          },
+          {
+            "label": "surprised",
+            "probability": 0.02791072428226471
+          }
+        ]
+      },
+      "fixture_sha256": "b8475c029ef3ea3c931ed23cb55863dfee0e763d6d43bb1d95d42b5f9941c93b"
+    },
+    "SpeechCommands": {
+      "passed": true,
+      "max_probability_error": 8.940696716308594e-08,
+      "response": {
+        "dataset": "SpeechCommands",
+        "backbone": "dinov3_vits16",
+        "version": "8c64f24b0786258d",
+        "duration": 1.0,
+        "top_k": [
+          {
+            "label": "down",
+            "probability": 0.16538922488689423
+          },
+          {
+            "label": "go",
+            "probability": 0.1257241815328598
+          },
+          {
+            "label": "on",
+            "probability": 0.11380903422832489
+          },
+          {
+            "label": "bird",
+            "probability": 0.09294871985912323
+          },
+          {
+            "label": "four",
+            "probability": 0.0699353963136673
+          }
+        ]
+      },
+      "fixture_sha256": "8ac0db68709fe1c7256d2b8f6cb7c6e140b2a2372baed5a9a9124e1d45f69c1d"
+    }
+  }
+}

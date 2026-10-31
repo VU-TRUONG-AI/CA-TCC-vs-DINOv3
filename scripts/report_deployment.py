@@ -28,7 +28,7 @@ exact_font = 'Times New Roman' in font_family
 navy=colors.black; teal=colors.black; grey=colors.HexColor('#333333')
 styles=getSampleStyleSheet()
 styles.add(ParagraphStyle(name='BodyVN',fontName='VN',fontSize=14,leading=21,spaceAfter=7,textColor=navy,alignment=TA_JUSTIFY,firstLineIndent=28.35))
-styles.add(ParagraphStyle(name='ListVN',parent=styles['BodyVN'],firstLineIndent=0,leftIndent=12))
+styles.add(ParagraphStyle(name='ListVN',parent=styles['BodyVN'],firstLineIndent=0,leftIndent=12,alignment=TA_LEFT))
 styles.add(ParagraphStyle(name='H1VN',fontName='VN-Bold',fontSize=16,leading=23,spaceBefore=14,spaceAfter=12,textColor=navy,keepWithNext=True))
 styles.add(ParagraphStyle(name='H2VN',fontName='VN-Bold',fontSize=14,leading=21,spaceBefore=10,spaceAfter=7,textColor=teal,keepWithNext=True))
 styles.add(ParagraphStyle(name='SmallVN',fontName='VN',fontSize=12,leading=17,spaceAfter=6,textColor=grey,alignment=TA_LEFT))
@@ -75,7 +75,7 @@ if onnx:
 if container:
     for name,result in container.get('real_wav_parity',{}).items():
         rows.append([f'Container {name}',f"Sai khác điểm tối đa: {result['max_probability_error']:.8g}."])
-story += [table(rows),Spacer(1,10),p('Các số trên đo tính tương đương suy luận của một số fixture. Đây không phải accuracy/F1 trên tập đánh giá đầy đủ. Các kiểm tra API còn bao gồm WAV lỗi, dataset không hợp lệ, giới hạn thời lượng và Origin không được phép.'),p('Ảnh chụp giao diện và workflow sẽ được bổ sung khi quyền truy cập và công cụ kiểm tra cho phép. Không dùng hình minh họa như bằng chứng đã chạy thực tế.','SmallVN'),PageBreak()]
+story += [table(rows),Spacer(1,10),p('Các số trên đo tính tương đương suy luận trên các tệp mẫu, không phải accuracy/F1 của toàn bộ tập đánh giá. API còn được kiểm tra với WAV lỗi, dataset không hợp lệ, thời lượng vượt giới hạn và Origin không được phép.','SmallVN'),PageBreak()]
 
 lines=(ROOT/'deployment/README.md').read_text().splitlines()
 paragraph=[]; code=[]; in_code=False; table_rows=[]

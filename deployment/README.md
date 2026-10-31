@@ -1,5 +1,20 @@
 # Triển khai CA-TCC + DINOv3: Docker, CI/CD và web miễn phí
 
+## Kết quả phát hành ngày 31 tháng 10 năm 2026
+
+- Workflow release và Pages đều thành công: https://github.com/VU-TRUONG-AI/CA-TCC-vs-DINOv3/actions/runs/41179704476
+- Image public: https://hub.docker.com/r/truongdepzai205/ca-tcc-audio/tags
+- Tag đã phát hành: `truongdepzai205/ca-tcc-audio:sha-512936f26e68c1ccc275f8c297e381320283f69c`.
+- Digest: `sha256:5eda4588f9cbe3eccac1b0d40a3df742071516969fb74356b6a155c3968123ea`.
+- Web đã deploy: https://vu-truong-ai.github.io/CA-TCC-vs-DINOv3/
+- Model assets: https://github.com/VU-TRUONG-AI/CA-TCC-vs-DINOv3/releases/tag/model-assets-v1
+
+Image đã được pull và chạy lại trên runner; hai WAV thật khớp nhãn tham chiếu, sai khác điểm tối đa dưới 0.0001. Docker Hub trả tag và digest qua API công khai không cần đăng nhập. Kích thước nén của image trên registry là 509552061 byte; kích thước image giải nén trên máy khoảng 1.99 GB. Hai số đo này mô tả hai cách lưu trữ khác nhau.
+
+Kiểm tra giao diện trên bản Pages đã chạy xong cả hai WAV: RAVDESS trả Buồn khoảng 0.40, SpeechCommands trả down khoảng 0.17, khớp nhãn đứng đầu của API. Hai server local đều đã dừng trong lúc kiểm tra. Lần tải và khởi tạo đầu mất khoảng 168 và 179 giây trên môi trường kiểm tra; chưa phải phép đo tốc độ suy luận thuần. Bằng chứng và giới hạn kiểm tra nằm tại `deployment/verification/release-20261031/`.
+
+Dùng workflow `Release AI Docker image` trong `release.yml`. Workflow build Docker đơn giản đã được xóa vì thiếu bước tải model vào `build/models/`; không tạo lại workflow đó để phát hành song song.
+
 ## 1. Kiến trúc và phạm vi
 
 Dự án cung cấp hai đường sử dụng cùng model đã huấn luyện:
@@ -53,7 +68,7 @@ Upload ZIP và SHA256 vào một GitHub Release có version riêng, ví dụ `mo
 | MODEL_ASSETS_SHA256 | 64 ký tự SHA256 từ file đi kèm |
 | ENABLE_PAGES | true sau khi bật Pages và muốn triển khai web |
 
-Chỉ `DOCKERHUB_TOKEN` là secret. Các biến trên không chứa mật khẩu.
+Workflow dùng secret `DOCKERHUB_TOKEN` và đọc username từ Variables. Secret `DOCKERHUB_USERNAME` đã có không được workflow này dùng. Các biến trên không chứa mật khẩu.
 
 Runner sạch tải và kiểm tra như sau:
 
@@ -144,7 +159,7 @@ Mọi URL Docker Hub và digest trong báo cáo phải lấy từ kết quả th
 
 Script `scripts/build_browser_release.py` kết hợp source web với chunks đã xác minh, tạo `build/web-dist/`, `.nojekyll` và `deployment.json`. File deployment ghi commit và hash model để truy vết.
 
-Job Pages chỉ chạy sau khi job phát hành thành công. `actions/upload-pages-artifact` lưu bộ web hoàn chỉnh; `actions/deploy-pages` xuất URL thực tế. Không viết URL dự kiến thành kết quả đã xác nhận.
+Job Pages chỉ chạy sau khi job phát hành thành công. `actions/upload-pages-artifact` lưu bộ web hoàn chỉnh; `actions/deploy-pages` xuất URL thực tế.
 
 Để chạy thử bản web độc lập trước khi publish:
 
@@ -199,13 +214,15 @@ Nếu deploy thất bại trước khi công bố bản mới, giữ nguyên b�
 - RAVDESS: https://zenodo.org/records/1188976
 - Speech Commands: https://arxiv.org/abs/1804.03209
 
-## 12. Sinh lại PDF từ bằng chứng đã lưu
+## 12. Sinh báo cáo từ bằng chứng đã lưu
 
 ```bash
 python -m pip install -r deployment/requirements-report.txt
+python scripts/report_deployment_docx.py
+# Chỉ dùng trình tạo PDF trực tiếp nếu đã có font phù hợp
 python scripts/report_deployment.py
 ```
 
-Đầu ra là `output/pdf/BAO_CAO_CICD_DOCKER_AI.pdf`. Trình tạo đọc kết quả API, ONNX, container và `publication.json` trong `output/deployment/`. Không tự đánh dấu thành công các bước chưa có bằng chứng. PDF phải được render và kiểm tra trực quan trước khi nộp.
+Bản Word là `output/docx/BAO_CAO_CICD_DOCKER_AI.docx`, đặt Times New Roman 14 pt, giãn dòng 1.5 và dấu gạch đầu dòng. Có thể xuất PDF từ Word khi máy mở tài liệu đã có Times New Roman. Trình tạo Word đọc bằng chứng trong `output/deployment/`, hoặc bản lưu tại `deployment/verification/release-20261031/` nếu chưa có dữ liệu đầu ra cục bộ. Trình tạo PDF trực tiếp ghi `output/pdf/BAO_CAO_CICD_DOCKER_AI.pdf`; nếu máy thiếu font, bản PDF này dùng font thay thế và không được coi là PDF đã nhúng Times New Roman. Trình tạo đọc kết quả API, ONNX, container và `publication.json` trong `output/deployment/`. Không tự đánh dấu thành công các bước chưa có bằng chứng. PDF phải được render và kiểm tra trực quan trước khi nộp.
 
 Nếu cần upload chia phần trên mạng không ổn định, tạo release nháp rồi chạy `python scripts/upload_model_release.py`. Trình upload chỉ xử lý release nháp, bỏ qua phần đã tải thành công và giữ trạng thái để có thể tiếp tục. Khi đủ các phần, kiểm tra danh sách asset, rồi mới công bố release và cấu hình MODEL_ASSETS_URL trỏ tới index JSON.
